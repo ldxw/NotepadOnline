@@ -67,6 +67,49 @@
 		**这样打开弹窗时遮罩仍然能压暗导航栏*/
 		z-index:1030;
 	}
+	/*折叠菜单改成从导航栏下沿弹出的浮层：导航栏高度固定 3.5rem，菜单若按文档流展开就会
+	**溢出到下面的编辑器上，和「工具栏仅在大屏设备上可用」的横幅叠在一起。绝对定位后既不参与
+	**导航栏高度计算，也不会把整页撑出竖向滚动条*/
+	.navbarTop .navbar-collapse{
+		position:absolute;
+		top:100%;
+		left:0;
+		right:0;
+		max-height:calc(100vh - 3.5rem);
+		overflow-y:auto;
+		padding:.5rem;
+		text-align:right;
+		background-color:#fff;
+		border-top:1px solid #ececec;
+		box-shadow:0 .5rem 1rem rgba(0,0,0,.12);
+	}
+	/*面板里 .dropdown 是块级元素，会和上面的按钮组各占一行；改成行内块配合 text-align:right，
+	**按钮组与「更多」「主题」并排靠右。.btn-group 本身已是 inline-flex，不动它。
+	**必须 top 对齐：菜单展开后这个行内块的高度会变成「按钮 + 整块菜单」，用 middle 会把同行的
+	**「主题」按钮对齐到那个高盒的中线上，飘到菜单腰部去*/
+	.navbarTop .navbar-collapse > .dropdown{
+		display:inline-block;
+		vertical-align:top;
+	}
+	/*下拉菜单在窄屏改成就地展开：绝对定位的浮层会从按钮往左伸出去，盖住整个头部，
+	**手指也没法把它拖开。静态定位后菜单跟着面板走，面板自己可滚动*/
+	.navbarTop .navbar-collapse .dropdown-menu{
+		position:static;
+		display:none;
+		float:none;
+		width:100%;
+		margin-top:.25rem;
+		text-align:left;
+		border:0;
+		box-shadow:none;
+		background-color:#f9f9fa;
+	}
+	.navbarTop .navbar-collapse .dropdown-menu.show{
+		display:block;
+	}
+	.navbarTop .navbar-collapse .dropdown-item{
+		white-space:normal;
+	}
 	.navbarTop .navbar-brand{
 		/*flex-basis 归零，标题只吃剩余空间，不会把同行元素挤到下一行*/
 		flex:1 1 0;
