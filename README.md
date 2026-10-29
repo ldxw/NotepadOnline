@@ -20,6 +20,68 @@ NPO最早的灵感是基于EverTools基金会的NotePad_Live。之所以延续No
 ## 作者是谁？
 欢迎关注我的个人博客(http://94joy.cn)
 
+## Docker 部署
+
+镜像多架构（linux/amd64、linux/arm64），标签有 `latest`、版本号、日期三种。
+
+使用 `docker compose`（仓库自带 `docker-compose.yml`）：
+
+```bash
+# 必须设置分享链签名密钥，否则分享功能不可用
+echo "NPO_SHARE_SECRET=$(openssl rand -hex 32)" > .env
+docker compose up -d
+```
+
+镜像不存在时 `up -d` 会自动构建；**改了源码后必须加 `--build` 强制重建**，否则仍跑旧镜像：
+
+```bash
+docker compose up -d --build
+```
+
+或直接用镜像运行：
+
+```bash
+docker run -d --name notepadonline -p 8080:80 \
+  -e NPO_SHARE_SECRET="$(openssl rand -hex 32)" \
+  -v npo-data:/var/www/html/_tmp \
+  ghcr.io/ldxw/notepadonline:latest
+```
+
+- 映射端口 `8080:80`，浏览器访问 `http://<主机>:8080/`
+- 笔记数据在容器内 `/var/www/html/_tmp`，务必挂载卷；备份就是备份这个卷
+
+### 必须配置的环境变量
+
+| 变量 | 作用 |
+| --- | --- |
+| `NPO_SHARE_SECRET` | 分享链的 HMAC 签名密钥，任意足够长的随机串 |
+
+未设置时程序不会报错，而是静默降级：分享链接为空、`/share/*` 一律 302 回首页。
+更换密钥会让此前生成的所有分享链立即失效。
+
+### 自行构建镜像（GitHub Actions）
+
+`.github/workflows/docker.yml` 需在 Actions 页面手动触发，可填版本号（留空则读仓库根目录 `VERSION`），
+构建 `linux/amd64` + `linux/arm64`，推送 `latest`、版本号、日期三种标签到 GHCR。
+
+同时推阿里云 ACR 是由输入项 `push_aliyun` 控制的，**默认开启**。开启时必须在仓库
+Settings → Secrets and variables → Actions 里配置这四个 secret，缺任何一个都会让构建失败：
+
+| Secret | 含义 |
+| --- | --- |
+| `ALIYUN_REGISTRY` | 仓库地址，如 `registry.cn-hangzhou.aliyuncs.com` |
+| `ALIYUN_NAMESPACE` | 命名空间 |
+| `ALIYUN_USERNAME` | 阿里云账号 |
+| `ALIYUN_PASSWORD` | 仓库密码 |
+
+只推 GHCR 时，触发构建时把 `push_aliyun` 关掉即可。
+
+### 使用前请了解
+
+- NPO 没有账号体系，**笔记名就是访问凭据**。知道文档名的人即可查看和修改未设密码的笔记。
+  请勿在其中存放敏感内容；担心名字被人撞上，请先在「设定 → 密码」里给笔记设编辑密码。
+- 文档体积上限为 512KB 原始内容（编码后 4MB），超出会返回 `tooLarge`。
+
 ## 演示(Demo)与下载(Download)
 演示:NPO(http://n.94joy.cn)
 下载1:Github(https://github.com/2613df/NotepadOnline/releases)  

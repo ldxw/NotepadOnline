@@ -1,0 +1,7 @@
+# 笔记数据与运行时文件，不入库
+_tmp/*
+!_tmp/.htaccess
+*.data
+
+# 本地环境变量（如 NPO_SHARE_SECRET）
+.env

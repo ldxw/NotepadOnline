@@ -1,0 +1,38 @@
+services:
+  notepadonline:
+    image: ghcr.io/ldxw/notepadonline:latest
+    build:
+      context: .
+      args:
+        APP_VERSION: ${APP_VERSION:-dev}
+    container_name: notepadonline
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      # 分享链签名密钥，缺失时分享功能不可用（容器启动会在日志里打印警告）；
+      # 在 .env 中设置 NPO_SHARE_SECRET
+      NPO_SHARE_SECRET: ${NPO_SHARE_SECRET:-}
+    security_opt:
+      - no-new-privileges:true
+    # 只保留 Apache 以 root 绑 80 并降权到 www-data 所需的能力
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+      - DAC_OVERRIDE
+      - NET_BIND_SERVICE
+    mem_limit: 512m
+    pids_limit: 256
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    volumes:
+      - npo-data:/var/www/html/_tmp
+
+volumes:
+  npo-data:

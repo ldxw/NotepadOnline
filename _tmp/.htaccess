@@ -1,0 +1,4 @@
+# 笔记数据目录：禁止任何直接访问，数据只经 lib/handle.php 读写
+# 这层是 Web 服务器层面的纵深防御，即使上层 rewrite 规则被绕过也不暴露数据
+Require all denied
+Options -Indexes

@@ -1,0 +1,145 @@
+name: Docker Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "版本号标签（留空则读取仓库根目录 VERSION 文件）"
+        required: false
+        default: ""
+      push_aliyun:
+        description: "是否同时推送到阿里云镜像仓库"
+        type: boolean
+        required: false
+        default: true
+
+env:
+  GHCR_IMAGE: ghcr.io/ldxw/notepadonline
+  PLATFORMS: linux/amd64,linux/arm64
+
+# 同一分支的构建串行执行，避免两次手动触发互相覆盖标签
+concurrency:
+  group: docker-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: 解析标签
+        id: meta
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          PUSH_ALIYUN: ${{ inputs.push_aliyun }}
+          ALIYUN_REGISTRY: ${{ secrets.ALIYUN_REGISTRY }}
+          ALIYUN_NAMESPACE: ${{ secrets.ALIYUN_NAMESPACE }}
+        run: |
+          VERSION="$INPUT_VERSION"
+          if [ -z "$VERSION" ]; then
+            VERSION="$(tr -d ' \r\n' < VERSION)"
+          fi
+          if [ -z "$VERSION" ]; then
+            echo "无法确定版本号，请在 workflow 输入或 VERSION 文件中提供" >&2
+            exit 1
+          fi
+          if ! printf '%s' "$VERSION" | grep -Eq '^[0-9A-Za-z][0-9A-Za-z._-]*$'; then
+            echo "版本号不合法：只允许字母、数字、点、下划线、连字符，且不能以符号开头" >&2
+            exit 1
+          fi
+
+          DATE_TAG="$(date -u +%Y%m%d)"
+          CREATED="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+          TAGS=""
+          add_tags() {
+            local base="$1"
+            if [ -n "$TAGS" ]; then
+              TAGS="${TAGS}"$'\n'
+            fi
+            TAGS="${TAGS}${base}:latest"$'\n'"${base}:${VERSION}"$'\n'"${base}:${DATE_TAG}"
+          }
+          add_tags "$GHCR_IMAGE"
+
+          if [ "$PUSH_ALIYUN" = "true" ]; then
+            if [ -z "$ALIYUN_REGISTRY" ] || [ -z "$ALIYUN_NAMESPACE" ]; then
+              echo "缺少 ALIYUN_REGISTRY 或 ALIYUN_NAMESPACE secret，无法推送阿里云；可关闭 push_aliyun 后重试" >&2
+              exit 1
+            fi
+            add_tags "${ALIYUN_REGISTRY}/${ALIYUN_NAMESPACE}/notepadonline"
+          fi
+
+          {
+            echo "version=$VERSION"
+            echo "date_tag=$DATE_TAG"
+            echo "created=$CREATED"
+            echo "tags<<TAGS_EOF"
+            printf '%s\n' "$TAGS"
+            echo "TAGS_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: 设置 QEMU
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3.7.0
+
+      - name: 设置 Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
+
+      - name: 登录 GHCR
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 登录阿里云 ACR
+        if: ${{ inputs.push_aliyun }}
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        with:
+          registry: ${{ secrets.ALIYUN_REGISTRY }}
+          username: ${{ secrets.ALIYUN_USERNAME }}
+          password: ${{ secrets.ALIYUN_PASSWORD }}
+
+      - name: 构建并推送多架构镜像
+        id: build
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
+        with:
+          context: .
+          platforms: ${{ env.PLATFORMS }}
+          push: true
+          build-args: |
+            APP_VERSION=${{ steps.meta.outputs.version }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: |
+            org.opencontainers.image.version=${{ steps.meta.outputs.version }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ steps.meta.outputs.created }}
+          provenance: mode=max
+          sbom: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # 执行摘要里留一份 digest，方便回滚时定位到具体镜像
+      - name: 写入镜像摘要
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+          TAGS: ${{ steps.meta.outputs.tags }}
+        run: |
+          {
+            echo "## 构建结果"
+            echo ""
+            echo "- 版本：${{ steps.meta.outputs.version }}"
+            echo "- 标签：\`${{ steps.meta.outputs.date_tag }}\`"
+            echo "- Digest：\`$DIGEST\`"
+            echo ""
+            echo '```'
+            printf '%s\n' "$TAGS"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
