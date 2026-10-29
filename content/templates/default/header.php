@@ -66,22 +66,22 @@
 			</div>
 			<?php } ?>
 		  <div class="btn-group">
-			<a tabindex="0" id="teamworkBtn" class="btn btn-light" role="button" data-toggle="popover" data-placement="bottom" data-trigger="hover focus" title="开发日志" data-content='"协作"功能目前正在开发中，可能会在数个版本后更新，也可能中途被砍掉'><i class="fas fa-user-friends"></i></a>
-			<a href="#" class="btn btn-light" id="mobBtn" data-toggle="popover" data-placement="bottom" data-trigger="hover focus" title="移动端扫码以继续访问" data-html=true data-qr="<?php echo htmlspecialchars($URL."/".$esL.$name, ENT_QUOTES, 'UTF-8');?>" data-content='<img width=100% class="npo-qr" alt="当前链接二维码"/>'><i class="fas fa-mobile-alt"></i></a>
+			<a tabindex="0" id="teamworkBtn" class="btn btn-light" role="button" data-toggle="popover" data-placement="bottom" data-trigger="hover focus" title="开发日志" data-content='"协作"功能目前正在开发中，可能会在数个版本后更新，也可能中途被砍掉'><i class="fas fa-user-friends"></i><span class="npoBtnLabel">团队</span></a>
+			<a href="#" class="btn btn-light" id="mobBtn" data-toggle="popover" data-placement="bottom" data-trigger="hover focus" title="移动端扫码以继续访问" data-html=true data-qr="<?php echo htmlspecialchars($URL."/".$esL.$name, ENT_QUOTES, 'UTF-8');?>" data-content='<img width=100% class="npo-qr" alt="当前链接二维码"/>'><i class="fas fa-mobile-alt"></i><span class="npoBtnLabel">扫码</span></a>
 			<!-- <a href="#" class="btn btn-light" id="shareBtn" data-toggle="tooltip" data-placement="bottom" title="只读分享给他人"><i class="fas fa-share-square"></i>&nbsp;只读分享</a> -->
-			<a href="#" class="btn btn-light" id="shareBtn" data-toggle="modal" data-target="#shareWindow"><i class="fas fa-share-square"></i></a>
+			<a href="#" class="btn btn-light" id="shareBtn" data-toggle="modal" data-target="#shareWindow"><i class="fas fa-share-square"></i><span class="npoBtnLabel">分享</span></a>
 			
 			
-			<a href="#" class="btn btn-light" id="configBtn" data-toggle="modal" data-target="#configWindow"><i class="fas fa-cog"></i></a>
+			<a href="#" class="btn btn-light" id="configBtn" data-toggle="modal" data-target="#configWindow"><i class="fas fa-cog"></i><span class="npoBtnLabel">设置</span></a>
 		  </div>
 		  <div class="btn-group">
 			<button type="button" class="btn btn-success" id = "keyJudgeBtn" data-toggle="modal" data-target="#keyJudgeWindow" style="display: none;">输入密码</button>
 			<!-- <button type="button" class="btn btn-info" id = "shareSuccessBtn" data-toggle="modal" data-target="#shareWindow" style="display: none;">分享成功</button> -->
 		  </div>
-		&nbsp;&nbsp;
+		<span class="d-none d-lg-inline">&nbsp;&nbsp;</span>
 		<div class="dropdown" id="moreTog">
 		  <a class="btn btn-light dropdown-toggle" type="button" id="moreBtn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-		    <i class="fas fa-ellipsis-v"></i>
+		    <i class="fas fa-ellipsis-v"></i><span class="npoBtnLabel">更多</span>
 		  </a>
 		  <div class="dropdown-menu dropdown-menu-right" aria-labelledby="moreBtn">
 			<form class="px-4 py-3" action="/<?php echo $esL;?>" method="POST" target="_blank">
@@ -116,7 +116,7 @@
 		**主题是两页都要能用的，不能跟它绑在一起-->
 		<div class="dropdown" id="npoThemeTog">
 		  <a class="btn btn-light dropdown-toggle" type="button" id="npoThemeBtn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="切换主题" aria-label="切换主题">
-		    <i class="fas fa-palette"></i>
+		    <i class="fas fa-palette"></i><span class="npoBtnLabel">主题</span>
 		  </a>
 		  <div class="dropdown-menu dropdown-menu-right" aria-labelledby="npoThemeBtn">
 			<a class="dropdown-item disabled" href="#">主题</a>

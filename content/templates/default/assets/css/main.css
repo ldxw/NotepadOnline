@@ -54,6 +54,10 @@
 	top:.5rem;
 	right:.5rem;
 }
+/*按钮上的文字标签：顶栏横向空间紧张，宽屏保持纯图标，只在窄屏折叠面板里显示*/
+.npoBtnLabel{
+	display: none;
+}
 /*窄屏（<992px）才有折叠按钮，标题过长会横向撑过去把它盖住、点不到
 **Bootstrap 的 .navbar-brand 带 white-space:nowrap，不额外处理就不肯收缩*/
 @media (max-width:991.98px){
@@ -118,6 +122,14 @@
 		padding:.5rem .75rem;
 		font-size:1.125rem;
 		text-align:left;
+	}
+	/*窄屏按钮铺满整行，只剩一个图标就是块认不出用途的空灰条，补上文字才看得出
+	**是「分享」「设置」。宽屏顶栏挤不下这些字，那里继续只显示图标*/
+	.npoBtnLabel{
+		display:inline-block;
+		margin-left:.375rem;
+		font-size:.875rem;
+		vertical-align:middle;
 	}
 	/*下拉菜单在窄屏改成就地展开：绝对定位的浮层会从按钮往左伸出去，盖住整个头部，
 	**手指也没法把它拖开。静态定位后菜单跟着面板走，面板自己可滚动*/
