@@ -8,10 +8,10 @@ on:
         required: false
         default: ""
       push_aliyun:
-        description: "是否同时推送到阿里云镜像仓库"
+        description: "是否同时推送到阿里云镜像仓库（默认关闭，勾选后需先配好四个 ALIYUN_* secret）"
         type: boolean
         required: false
-        default: true
+        default: false
 
 env:
   GHCR_IMAGE: ghcr.io/ldxw/notepadonline
