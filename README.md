@@ -165,6 +165,16 @@ NPO_BROADCAST_TEXT=
 | `ALIYUN_USERNAME` | 阿里云账号 |
 | `ALIYUN_PASSWORD` | 仓库密码 |
 
+阿里云 ACR 不认 OCI 1.1 的制品清单，构建时带 provenance 或 SBOM 会推送失败：
+
+```text
+denied: unknown manifest class for application/vnd.oci.empty.v1+json
+```
+
+buildx 默认会附一份 min 级 provenance，所以 workflow 里显式写了 `provenance: false`
+和 `sbom: false`。代价是 GHCR 上也没有这两份签名材料了，换来的是两个仓库拿到同一个
+manifest digest，便于核对是不是同一份镜像。要恢复的话，得把推送拆成两步、只对阿里云那步关闭。
+
 ### 使用前请了解
 
 - NPO 没有账号体系，**笔记名就是访问凭据**。知道文档名的人即可查看和修改未设密码的笔记。
