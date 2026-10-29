@@ -7,10 +7,10 @@
     <meta name="author" content="94joy.cn" />
     <meta name="keywords" content="跨端传输,同屏传输,在线笔记,简单,简约,笔记,94Joy,NotePad,NPO,NotePadOnLine" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><?php ($esN)?(print $name."(只读)"):(print $name);?> - NPO</title>
-	<link rel="stylesheet" href="http://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" crossorigin="anonymous">
-	<link rel="stylesheet" href="/<?php echo $templateFolder."assets/css/main.css";?>" crossorigin="anonymous">
-	<link crossorigin="anonymous" href="http://cdn.staticfile.org/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
+    <title><?php echo htmlspecialchars($esN ? $npoDisplayName."(只读)" : $name, ENT_QUOTES, 'UTF-8'); ?> - NPO</title>
+	<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" crossorigin="anonymous">
+	<link rel="stylesheet" href="<?php echo $templateUrl."assets/css/main.css";?>" crossorigin="anonymous">
+	<link crossorigin="anonymous" href="https://cdn.staticfile.org/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
 	
 </head>
 <body>
@@ -20,7 +20,7 @@
 			<a href="/" id="newPageBtn" class="btn btn-primary" target="_blank" data-toggle="tooltip" data-placement="bottom" title="新建一个空白文档"><i class="fas fa-plus"></i></a>
 			<a href="javascript:void(0)" class="btn btn-light" onclick="history.go(0)" data-toggle="tooltip" data-placement="bottom" title="刷新页面"><i class="fas fa-sync-alt"></i></a>
 		</div>
-		<span class="navbar-brand">&nbsp;&nbsp;<?php ($esN)?(print $name."(只读)"):(print $name);?> - NPO</span>
+		<span class="navbar-brand">&nbsp;&nbsp;<?php echo htmlspecialchars($esN ? $npoDisplayName."(只读)" : $name, ENT_QUOTES, 'UTF-8'); ?> - NPO</span>
 		<small id="savingStatus" class="text-muted">&nbsp;<i class="fas fa-download"></i>&nbsp;正在读取...</small>
 		&nbsp;
 		<!-- <div class="spinner-border text-secondary spinner-border-sm" role="status"><span class="sr-only"></span></div>&nbsp;正在保存... -->
@@ -44,7 +44,7 @@
 			</div>
 		  <div class="btn-group">
 			<a tabindex="0" id="teamworkBtn" class="btn btn-light" role="button" data-toggle="popover" data-placement="bottom" data-trigger="hover" title="开发日志" data-content='"协作"功能目前正在开发中，可能会在数个版本后更新，也可能中途被砍掉'><i class="fas fa-user-friends"></i></a>
-			<a href="#" class="btn btn-light" id="mobBtn" data-toggle="popover" data-placement="bottom" data-trigger="hover" title="移动端扫码以继续访问" data-html=true data-content='<img width=100% src="http://qr.topscan.com/api.php?text=<?php echo $URL."/".$esL.$name;?>"/>'><i class="fas fa-mobile-alt"></i></a>
+			<a href="#" class="btn btn-light" id="mobBtn" data-toggle="popover" data-placement="bottom" data-trigger="hover" title="移动端扫码以继续访问" data-html=true data-qr="<?php echo htmlspecialchars($URL."/".$esL.$name, ENT_QUOTES, 'UTF-8');?>" data-content='<img width=100% class="npo-qr" alt="当前链接二维码"/>'><i class="fas fa-mobile-alt"></i></a>
 			<!-- <a href="#" class="btn btn-light" id="shareBtn" data-toggle="tooltip" data-placement="bottom" title="只读分享给他人"><i class="fas fa-share-square"></i>&nbsp;只读分享</a> -->
 			<a href="#" class="btn btn-light" id="shareBtn" data-toggle="modal" data-target="#shareWindow"><i class="fas fa-share-square"></i></a>
 			
@@ -64,7 +64,7 @@
 			<form class="px-4 py-3" action="/<?php echo $esL;?>" method="POST" target="_blank">
 			<div class="form-group">
 			  <label>找回文档</label>
-			  <input type="text" class="form-control" name="f" placeholder="文档名，如 <?php print $name;?>">
+			  <input type="text" class="form-control" name="f" placeholder="文档名，如 <?php echo htmlspecialchars($name, ENT_QUOTES, 'UTF-8');?>">
 			</div>
 			<button type="submit" class="btn btn-primary">前往</button>
 			</form>

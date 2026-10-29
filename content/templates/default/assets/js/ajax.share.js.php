@@ -1,10 +1,10 @@
 $("#pwJudge").click(function(){
 	//$("Pw").click();
 	$.ajax({
-	url: '../lib/handle.php',
+	url: '/lib/handle.php',
 	type: "POST",
 	//data: "&t=" + encodeURIComponent(content)
-	data:{"es":"<?php echo $es?>","name":"<?php echo $name?>","do":"pwJudge","pw":$("#Pw").val()},
+	data:{"es":"<?php echo $es?>","name":<?php echo npoJson($name); ?>,"do":"pwJudge","pw":$("#Pw").val()},
 	//data:{"1":"1"},
 	success:function(data){
 			if(data.status!='OK'){
@@ -32,16 +32,17 @@ $(function() {
 	$("#teamworkBtn").attr("style","display:none");
 	$("#pills-config-tab").attr("style","display:none");
 	$("#shareBtn").attr("style","display:none");
+	$("#configBtn").attr("style","display:none");
 	$(".w-e-toolbar").attr("style","display:none");
 	
 	editor.$textElem.attr('contenteditable', false)
 
     //初次访问
 	$.ajax({
-		url: '../lib/handle.php',
+		url: '/lib/handle.php',
 		type: "POST",
 		//data: "&t=" + encodeURIComponent(content)
-		data:{"es":"<?php echo $es?>","name":"<?php echo $name?>","do":"noteRead"},
+		data:{"es":"<?php echo $es?>","name":<?php echo npoJson($name); ?>,"do":"noteRead"},
 		//data:{"1":"1"},
 		success:function(data){
 				if(data.status=='OK'){

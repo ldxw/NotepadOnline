@@ -1,4 +1,13 @@
 <?php ($visit) ? ("") : (header('location: /'));?>
+<?php
+/*分享链接：编辑侧由明文名称生成签名 token；分享侧自身已是 token，直接复用*/
+$npoShareLink = $esN ? $name : npoShareToken($name);
+$npoShareUrl = ($npoShareLink === '') ? '' : $URL."/share/".$npoShareLink;
+/*版本号读根目录 VERSION，读不到时退回内置值，避免"关于"里写死过期版本*/
+$npoVersionFile = __DIR__.'/../../../VERSION';
+$npoVersion = is_readable($npoVersionFile) ? trim((string)file_get_contents($npoVersionFile)) : '';
+if ($npoVersion === '') $npoVersion = '3.22';
+?>
 <div class="modal fade" id="keyJudgeWindow" tabindex="-1" data-backdrop="static" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -37,7 +46,7 @@
         <h3>创意来源</h3>
         <p>Notepad_live | 石墨文档</p>
         <h3>关于NPO</h3>
-        <p>项目地址：<a href="https://github.com/2613df/NotepadOnline" target="_blank">Github</a><br>当前版本：3.21<br>更新内容：<br>1 优化滚动条样式和显示逻辑<br>2 优化保存 / 同步逻辑，支持多终端同步<br>3 优化文档样式<br>4 新增顶部广播<br>5 顶栏不再能被选中<br>6 优化分享功能<br>7 支持导出Word<br>8 修复一定情况下Word导出失败的问题<br>9 捕获组合按键，优化体验<br>10 优化工具栏<br>11 进一步优化移动端(含iPad)体验</p>
+        <p>项目地址：<a href="https://github.com/2613df/NotepadOnline" target="_blank">Github</a><br>当前版本：<?php echo htmlspecialchars($npoVersion, ENT_QUOTES, 'UTF-8'); ?><br>更新内容：<br>1 优化滚动条样式和显示逻辑<br>2 优化保存 / 同步逻辑，支持多终端同步<br>3 优化文档样式<br>4 新增顶部广播<br>5 顶栏不再能被选中<br>6 优化分享功能<br>7 支持导出Word<br>8 修复一定情况下Word导出失败的问题<br>9 捕获组合按键，优化体验<br>10 优化工具栏<br>11 进一步优化移动端(含iPad)体验</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-success" data-dismiss="modal">好</button>
@@ -81,7 +90,7 @@
 			<br><small>开发日志：分享链暂时不支持编辑</small><br>
 			<p><b>固定分享链：</b>
 			<div class="input-group">
-				<input type="text" class="form-control" id="shareUrl" aria-describedby="inputGroupAppend" value="<?php echo $URL."/share/".dencrypt(1,$name);?>" readonly>
+				<input type="text" class="form-control" id="shareUrl" aria-describedby="inputGroupAppend" value="<?php echo htmlspecialchars($npoShareUrl, ENT_QUOTES, 'UTF-8');?>" readonly>
 				<div class="input-group-append">
 				  <span class="input-group-text" id="inputGroupPrepend"><a href="#" class="copy" data-clipboard-target="#shareUrl"><i class="fas fa-clipboard-list"></i>&nbsp;复制链接</a></span>
 				</div>
@@ -89,7 +98,7 @@
 			</p>
 			<p><b>二维码：</b><br>
 
-			<img src="http://qr.topscan.com/api.php?text=<?php echo $URL."/share/".dencrypt(1,$name);?>"/></p>
+			<img class="npo-qr" data-qr="<?php echo htmlspecialchars($npoShareUrl, ENT_QUOTES, 'UTF-8');?>" alt="分享二维码"/></p>
 			</form>
 
 
@@ -149,7 +158,7 @@
 		    <form>
 			<p><b>链接：</b>
 			<div class="input-group">
-				<input type="text" class="form-control" id="crtUrl" aria-describedby="inputGroupAppend" value="<?php echo $URL."/".$esL.$name;?>" readonly>
+				<input type="text" class="form-control" id="crtUrl" aria-describedby="inputGroupAppend" value="<?php echo htmlspecialchars($URL."/".$esL.$name, ENT_QUOTES, 'UTF-8');?>" readonly>
 				<div class="input-group-append">
 				  <span class="input-group-text" id="inputGroupPrepend"><a href="#" class="copy" data-clipboard-target="#crtUrl"><i class="fas fa-clipboard-list"></i>&nbsp;复制链接</a></span>
 				</div>
@@ -157,7 +166,7 @@
 			</p>
 			<p><b>二维码：</b><br>
 
-			<img src="http://qr.topscan.com/api.php?text=<?php echo $URL."/".$esL.$name;?>"/></p>
+			<img class="npo-qr" data-qr="<?php echo htmlspecialchars($URL."/".$esL.$name, ENT_QUOTES, 'UTF-8');?>" alt="当前链接二维码"/></p>
 			</form>
 
 
@@ -194,21 +203,48 @@
 	<div id="toastTopBody"></div>
 </div>
 
-<script src="http://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" crossorigin="anonymous"></script>
-<script src="http://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-<script crossorigin="anonymous" src="http://cdn.staticfile.org/font-awesome/5.13.0/js/all.min.js"></script>
+<script src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script crossorigin="anonymous" src="https://cdn.staticfile.org/font-awesome/5.13.0/js/all.min.js"></script>
 <script type="text/javascript">
+var NPO_CSRF = <?php echo npoJson($csrfToken); ?>;
+$.ajaxPrefilter(function(options){
+	/*jQuery 在进入 prefilter 前已把 data 对象序列化成字符串，这里直接追加字段*/
+	if (String(options.type).toUpperCase() !== 'POST') return;
+	if (options.data === undefined || options.data === null) {
+		options.data = 'csrf=' + encodeURIComponent(NPO_CSRF);
+	} else if (typeof options.data === 'string') {
+		options.data += (options.data === '' ? '' : '&') + 'csrf=' + encodeURIComponent(NPO_CSRF);
+	}
+});
 <?php
 $ajaxJs = $es=='e'? "edit":"share";
 include_once $templateFolder."assets/js/ajax.".$ajaxJs.".js.php";
 ?>
 </script>
-<!-- <script src="/<?php echo $templateFolder."assets/js/light.js";?>"></script> -->
+<!-- <script src="<?php echo $templateUrl."assets/js/light.js";?>"></script> -->
 <script src="https://cdn.staticfile.org/wangEditor/10.0.13/wangEditor.min.js"></script>
 <script src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js"></script>
 <script src="https://cdn.staticfile.org/FileSaver.js/1.3.8/FileSaver.min.js"></script>
 <script src="/assets/js/jquery.wordexport.js"></script>
+<script src="/assets/js/qrcode.min.js"></script>
 <script>
+/*把页面上的 data-qr 占位图片就地渲染成本地二维码（data: URL），
+**不依赖第三方二维码服务；已填过的跳过*/
+function npoQrFill($root){
+	$root.find('img[data-qr]').addBack('img[data-qr]').each(function(){
+		if (this.getAttribute('data-qr-done') === '1') return;
+		var text = this.getAttribute('data-qr');
+		if (!text) return;
+		try {
+			var q = qrcode(0, 'M');
+			q.addData(text);
+			q.make();
+			this.src = q.createDataURL(4, 8);
+			this.setAttribute('data-qr-done', '1');
+		} catch (e) {}
+	});
+}
 //编辑器初始化
 var E = window.wangEditor
 var editor = new E('#toolDiv','#editorDiv')
@@ -239,9 +275,26 @@ editor.create();
 $(function () {
   $('[data-toggle="popover"]').popover()
   $('[data-toggle="tooltip"]').tooltip()
+  /*二维码就地渲染；popover 内容是插入时才进 DOM 的，需在 shown 事件里补一次*/
+  npoQrFill($(document));
+  $(document).on('shown.bs.popover', function(e){
+    /*popover 内的图片被 Bootstrap sanitizer 剥掉了 data-qr，地址改存在触发元素自身上，
+    **这里回填后再统一渲染*/
+    var $trigger = $(e.target);
+    var qrText = $trigger.attr('data-qr');
+    var pop = $trigger.data('bs.popover');
+    var $tip = (pop && pop.tip) ? $(pop.tip) : $trigger.next('.popover');
+    if (qrText && $tip.length) {
+      $tip.find('img.npo-qr').attr('data-qr', qrText);
+    }
+    npoQrFill($(document));
+  });
   // $('.w-e-menu').eq(6).after('<div class="visible-md-block">');
   // $('.w-e-menu').eq(13).after('</div>');
+  <?php if ($es == 'e') { ?>
+  // 仅编辑页在窄屏隐藏工具栏；分享页必须隐藏，不能被 d-lg-block 覆盖
   $('.w-e-toolbar').attr("class","w-e-toolbar d-none d-lg-block")
+  <?php } ?>
 })
 
 
@@ -261,7 +314,7 @@ function exportWordDo(){
 	$("#toastTop").attr("style","display:block");
 	$("#toastTopTitleText").html('<i class="far fa-check-circle"></i>&nbsp;文档生成完毕');
 	$("#toastTopBody").html('您的文档已开始下载。<br>若未出现下载提示，请确认浏览器是否拦截，以及在文档中是否包含引用、表情、图片、视频、代码等内容');
-	$(".w-e-text").wordExport("<?php ($esN)?(print $name."(只读)"):(print $name);?>");
+	$(".w-e-text").wordExport(<?php echo npoJson($esN ? $npoDisplayName."(只读)" : $name); ?>);
 	closeToastSTO = setTimeout(function(){$("#toastTop").attr("style","display:none");},5000);
 }
 $("#exportBtnWord").click(function(){

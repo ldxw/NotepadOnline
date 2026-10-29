@@ -1,7 +1,15 @@
 
 RewriteEngine On
 
-RewriteRule ^share/([^.]+)$ share.php?f=$1 [QSA,PT,L]
+<IfModule mod_autoindex.c>
+	Options -Indexes
+</IfModule>
+
+RewriteRule ^_tmp(/|$) - [F,L]
+# docker/ 只用于构建，运行期不应对外暴露配置文本
+RewriteRule ^docker(/|$) - [F,L]
+
+RewriteRule ^share/([A-Za-z0-9._-]+)$ share.php?f=$1 [QSA,PT,L]
 
 
 #RewriteRule ^([a-zA-Z0-9_@^+(){},/~`]+)$ index.php?f=$1
@@ -16,3 +24,25 @@ RewriteRule ^([^.]+)$ index.php?f=$1 [QSA,PT,L]
 
 ErrorDocument 404 /
 ErrorDocument 403 /
+
+<FilesMatch "\.data$">
+	<IfModule mod_authz_core.c>
+		Require all denied
+	</IfModule>
+	<IfModule !mod_authz_core.c>
+		Order allow,deny
+		Deny from all
+	</IfModule>
+</FilesMatch>
+
+# 兜住所有点开头的文件（.env / .gitignore / .user.ini 等），
+# Apache 默认只拦 .ht*，其余会被当静态文本返回
+<FilesMatch "^\.">
+	<IfModule mod_authz_core.c>
+		Require all denied
+	</IfModule>
+	<IfModule !mod_authz_core.c>
+		Order allow,deny
+		Deny from all
+	</IfModule>
+</FilesMatch>

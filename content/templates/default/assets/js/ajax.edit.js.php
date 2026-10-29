@@ -1,9 +1,9 @@
 $("#pwChangeShare").click(function(){
 	$.ajax({
-	url: './lib/handle.php',
+	url: '/lib/handle.php',
 	type: "POST",
 	//data: "&t=" + encodeURIComponent(content)
-	data:{"es":"s","name":"<?php echo dencrypt(1,$name)?>","do":"pwChange","opw":$("#oldPwShare").val(),"npw":$("#newPwShare").val()},
+	data:{"es":"s","name":<?php echo npoJson(npoShareToken($name)); ?>,"do":"pwChange","opw":$("#oldPwShare").val(),"npw":$("#newPwShare").val()},
 	//data:{"1":"1"},
 	success:function(data){
 			if(data.status=='OK'){
@@ -28,9 +28,9 @@ $("#pwChangeShare").click(function(){
 
 $("#getShareBtn").click(function(){
 	$.ajax({
-		url: './lib/handle.php',
+		url: '/lib/handle.php',
 		type: "POST",
-		data:{"es":"s","name":"<?php echo dencrypt(1,$name)?>","do":"noteRead"},
+		data:{"es":"s","name":<?php echo npoJson(npoShareToken($name)); ?>,"do":"noteRead"},
 		success:function(data){
 				if(data.status=='OK'){
 					$("#getShareDiv").html('<div class="custom-control custom-switch switchDiv"><input type="checkbox" class="custom-control-input" id="shareSwitch" onclick="shareSwitchEve(this.checked)" checked><label class="custom-control-label" for="shareSwitch">当前已打开</label></div>&nbsp;<small>获得分享链的人都可以访问内容</small>');
@@ -63,9 +63,9 @@ $("#getShareBtn").click(function(){
 function shareSwitchEve($shareSwitch){
 	if ($shareSwitch == true){
 		$.ajax({
-		url: './lib/handle.php',
+		url: '/lib/handle.php',
 		type: "POST",
-		data:{"es":"<?php echo $es?>","name":"<?php echo $name?>","do":"shareOpen"},
+		data:{"es":"<?php echo $es?>","name":<?php echo npoJson($name); ?>,"do":"shareOpen"},
 		success:function(data){
 				if(data.status=='OK'){
 					$("#getShareDiv").html('<div class="custom-control custom-switch switchDiv"><input type="checkbox" class="custom-control-input" id="shareSwitch" onclick="shareSwitchEve(this.checked)" checked><label class="custom-control-label" for="shareSwitch">当前已打开</label></div>&nbsp;<small>获得分享链的人都可以访问内容</small>');
@@ -83,10 +83,10 @@ function shareSwitchEve($shareSwitch){
 		});
 	}else{
 		$.ajax({
-		url: './lib/handle.php',
+		url: '/lib/handle.php',
 		type: "POST",
 		//data: "&t=" + encodeURIComponent(content)
-		data:{"es":"<?php echo $es?>","name":"<?php echo $name?>","do":"shareClose"},
+		data:{"es":"<?php echo $es?>","name":<?php echo npoJson($name); ?>,"do":"shareClose"},
 		//data:{"1":"1"},
 		success:function(data){
 				if(data.status=='OK'){
@@ -110,10 +110,10 @@ function shareSwitchEve($shareSwitch){
 
 $("#pwChange").click(function(){
 	$.ajax({
-	url: './lib/handle.php',
+	url: '/lib/handle.php',
 	type: "POST",
 	//data: "&t=" + encodeURIComponent(content)
-	data:{"es":"<?php echo $es?>","name":"<?php echo $name?>","do":"pwChange","opw":$("#oldPw").val(),"npw":$("#newPw").val()},
+	data:{"es":"<?php echo $es?>","name":<?php echo npoJson($name); ?>,"do":"pwChange","opw":$("#oldPw").val(),"npw":$("#newPw").val()},
 	//data:{"1":"1"},
 	success:function(data){
 			if(data.status!='OK'){
@@ -138,10 +138,10 @@ $("#pwChange").click(function(){
 $("#pwJudge").click(function(){
 	//$("Pw").click();
 	$.ajax({
-	url: './lib/handle.php',
+	url: '/lib/handle.php',
 	type: "POST",
 	//data: "&t=" + encodeURIComponent(content)
-	data:{"es":"<?php echo $es?>","name":"<?php echo $name?>","do":"pwJudge","pw":$("#Pw").val()},
+	data:{"es":"<?php echo $es?>","name":<?php echo npoJson($name); ?>,"do":"pwJudge","pw":$("#Pw").val()},
 	//data:{"1":"1"},
 	success:function(data){
 			if(data.status!='OK'){
@@ -170,19 +170,23 @@ $(function() {
 	var $lastEditTime = 0;
 
 	$.ajax({//初次访问
-		url: './lib/handle.php',
+		url: '/lib/handle.php',
 		type: "POST",
 		//data: "&t=" + encodeURIComponent(content)
-		data:{"es":"<?php echo $es?>","name":"<?php echo $name?>","do":"noteRead"},
+		data:{"es":"<?php echo $es?>","name":<?php echo npoJson($name); ?>,"do":"noteRead"},
 		//data:{"1":"1"},
 		success:function(data){
-				if(data.status=='OK' || data.status=='notExist'){
+				if(data.status=='OK'){
 					editor.txt.html(data.result);
+					content = editor.txt.html();
+					$("#savingStatus").html('&nbsp;<i class="far fa-check-circle"></i>&nbsp;请求成功').attr("class","text-success");
+				}else if(data.status=='notExist'){
+					//新笔记：服务端无内容可回填，保留编辑器现状
 					content = editor.txt.html();
 					$("#savingStatus").html('&nbsp;<i class="far fa-check-circle"></i>&nbsp;请求成功').attr("class","text-success");
 				}else if(data.status=='permissionDenied'){
 					document.getElementById("keyJudgeBtn").click();
-				}else if(data.status!='notExist'){
+				}else{
 					$("#savingStatus").html('&nbsp;<i class="far fa-times-circle"></i>&nbsp;请求失败，失败原因：' + data.status).attr("class","text-danger");
 				}
 
@@ -204,17 +208,20 @@ $(function() {
 	function sync(){
 	    
 		$.ajax({
-			url: './lib/handle.php',
+			url: '/lib/handle.php',
 			type: "POST",
 			//data: "&t=" + encodeURIComponent(content)
-			data:{"es":"<?php echo $es?>","name":"<?php echo $name?>","do":"noteRead"},
+			data:{"es":"<?php echo $es?>","name":<?php echo npoJson($name); ?>,"do":"noteRead"},
 			//data:{"1":"1"},
 			success:function(data){
-					if(data.status=='OK' || data.status=='notExist'){
+					if(data.status=='OK'){
 						editor.txt.html(data.result);
 						content = editor.txt.html();
 						$("#savingStatus").html('&nbsp;<i class="far fa-check-circle"></i>&nbsp;同步成功').attr("class","text-success");
-					}else if(data.status!='notExist'){
+					}else if(data.status=='notExist'){
+						content = editor.txt.html();
+						$("#savingStatus").html('&nbsp;<i class="far fa-check-circle"></i>&nbsp;同步成功').attr("class","text-success");
+					}else{
 						$("#savingStatus").html('&nbsp;<i class="far fa-times-circle"></i>&nbsp;同步失败，失败原因：' + data.status).attr("class","text-danger");
 					}
 
@@ -235,16 +242,20 @@ $(function() {
 	function updateN() {
             content = editor.txt.html();
 			$.ajax({
-				url: './lib/handle.php',
+				url: '/lib/handle.php',
 				type: "POST",
 				//data: "&t=" + encodeURIComponent(content)
-				data:{"es":"<?php echo $es?>","name":"<?php echo $name?>","do":"noteChange","data":content,"lastEditTime":$lastEditTime},
+				data:{"es":"<?php echo $es?>","name":<?php echo npoJson($name); ?>,"do":"noteChange","data":content,"lastEditTime":$lastEditTime},
 				//data:{"1":"1"},
 				success:function(data){
 						if(data.status!='OK'){
 							$("#savingStatus").html('&nbsp;<i class="far fa-times-circle"></i>&nbsp;保存失败，请务必在本地自行保存您的笔记，失败原因：' + data.status).attr("class","text-danger");
 						}else{
-							editor.txt.html(data.result);
+							/*服务端 noteChange 只返回 status，没有 result；仅在确实返回字符串时回写，
+							**避免把 undefined 交给编辑器（旧版 wangEditor 会当作 getter）*/
+							if (typeof data.result === 'string') {
+								editor.txt.html(data.result);
+							}
 							$("#savingStatus").html('&nbsp;<i class="far fa-check-circle"></i>&nbsp;自动保存成功').attr("class","text-success");;
 							
 						}
@@ -271,9 +282,9 @@ $(function() {
 	}, 500);
 	setInterval(function() {
 		$.ajax({
-			url: './lib/handle.php',
+			url: '/lib/handle.php',
 			type: "POST",
-			data:{"es":"<?php echo $es?>","name":"<?php echo $name?>","do":"getLastTime"},
+			data:{"es":"<?php echo $es?>","name":<?php echo npoJson($name); ?>,"do":"getLastTime"},
 			success:function(data){
 					//alert("data.result");
 					//alert("Stime:" + parseInt(data.result) + "-Atime:" + $lastEditTime);
