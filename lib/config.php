@@ -55,8 +55,31 @@ if ($faviconURL !== '' && preg_match('#^([a-z][a-z0-9+.\-]*):#i', $faviconURL, $
     }
 }
 
-/*套用主题
-**套用主题时请确保主题存在*/
+/*站点主题（可选）
+**主题是 content/themes/<主题名>.css 这样一份样式覆盖文件，
+**在基础样式之后加载，只改配色不改布局。
+**主题名会拼进 URL，所以只允许字母数字下划线连字符，并且必须存在对应文件，
+**否则静默回退默认样式。Docker 部署用环境变量 NPO_THEME 指定*/
+$themeName = "default";
+$themeCssUrl = "";
+$npoEnvTheme = trim((string)getenv('NPO_THEME'));
+if ($npoEnvTheme !== "" && preg_match('/^[A-Za-z0-9_-]{1,32}$/', $npoEnvTheme)) {
+    if (is_file(__DIR__."/../content/themes/".$npoEnvTheme.".css")) {
+        $themeName = $npoEnvTheme;
+        $themeCssUrl = "/content/themes/".$npoEnvTheme.".css";
+    }
+}
+
+/*页脚文字（可选）
+**显示在页面底部左侧，右侧固定为版权（© 年份 站点名）。
+**Docker 部署可用环境变量 NPO_FOOTER_TEXT 覆盖，
+**只要变量被设置（哪怕是空值）就以环境变量为准，显式空串即不显示文字部分*/
+$footerText = "";
+$npoEnvFooterText = getenv('NPO_FOOTER_TEXT');
+if ($npoEnvFooterText !== false) $footerText = trim($npoEnvFooterText);
+
+/*套用模板
+**模板决定页面结构（header/show/footer），套用时请确保模板存在*/
 $templateName = "default";
 /*服务端 include 用绝对路径；URL 拼接另用 $templateUrl，
 **否则相对路径会随请求路径（/xxx 或 /share/yyy）漂移*/

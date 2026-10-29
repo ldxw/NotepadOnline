@@ -32,6 +32,10 @@
 	/*overflow: hidden;*/
 	text-align: center !important;
 }
+/*编辑页右上有全屏按钮，给工具栏留出那一段，避免挡住最后一个菜单*/
+.docDiv.has-fullbtn .w-e-toolbar{
+	padding-right: 3rem;
+}
 #toolNone{
 	text-align: center;
 	width:100%;
@@ -146,8 +150,77 @@ margin:auto;
 #editorDiv{
 	height:calc(100% - 34px);
 }
+/*3.5rem = 导航栏高度，2rem = 页脚高度，两者都要扣掉，否则页面会溢出*/
 .docDiv{
-	height:calc(100% - 3.5rem);
+	height:calc(100% - 3.5rem - 2rem);
+	position:relative;
+}
+/*页脚：高度必须与上面 .docDiv 扣掉的 2rem 一致*/
+.npoFooter{
+	height:2rem;
+	line-height:2rem;
+	padding:0 1rem;
+	font-size:.8125rem;
+	color:#6c757d;
+	background-color:#f7f7f7;
+	border-top:1px solid #ececec;
+	user-select:none;
+}
+.npoFooterInner{
+	display:flex;
+	justify-content:space-between;
+	align-items:center;
+	height:100%;
+	overflow:hidden;
+	white-space:nowrap;
+}
+.npoFooterText{
+	overflow:hidden;
+	text-overflow:ellipsis;
+}
+.npoFooterCopy{
+	flex-shrink:0;
+	/*没有左侧文字时也要靠右，不能依赖 space-between*/
+	margin-left:auto;
+	padding-left:1rem;
+}
+/*全屏编辑时 .docDiv 固定满屏，页脚让位*/
+.docDiv.npo-fullscreen ~ .npoFooter{
+	display:none;
+}
+@media (max-width:991.98px){
+	.npoFooter{
+		font-size:.75rem;
+	}
+}
+/*全屏编辑按钮，绝对定位压在工具栏右端；工具栏补右侧留白避免挡住菜单*/
+#npoFullWrap{
+	position:absolute;
+	top:.25rem;
+	right:.5rem;
+	/*工具栏自身 z-index 是 25000，按钮要压过它才点得到*/
+	z-index:25001;
+}
+#npoFullWrap .btn{
+	padding:.125rem .5rem;
+	font-size:.875rem;
+	line-height:1.4;
+}
+/*全屏时把 .docDiv 整体固定到视口，编辑器自身高度由 % 自动铺满*/
+.docDiv.npo-fullscreen{
+	position:fixed;
+	top:0;
+	left:0;
+	right:0;
+	bottom:0;
+	width:100%;
+	max-width:none;
+	height:100%;
+	margin:0;
+	/*低于 .modal / .dropdown-menu 的 20000，全屏时弹窗与下拉仍能盖在上面；
+	**又高于导航栏，自己建的层叠上下文里工具栏(25000)照常压住正文*/
+	z-index:15000;
+	background-color:#fff;
 }
 body {
 	background-color:#f7f7f7;

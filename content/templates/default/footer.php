@@ -249,11 +249,11 @@ function npoQrFill($root){
 var E = window.wangEditor
 var editor = new E('#toolDiv','#editorDiv')
 editor.customConfig.zIndex = 1000;
+/*该 CDN 构建(10.0.13)没有 fontSize / fontName / fullscreen 菜单，
+**写进 menus 也只会被静默忽略，所以这里不列。全屏由页面上单独放的按钮实现*/
 editor.customConfig.menus = [
 'head',  // 标题
 'bold',  // 粗体
-'fontSize',  // 字号
-'fontName',  // 字体
 'italic',  // 斜体
 'underline',  // 下划线
 'strikeThrough',  // 删除线
@@ -262,15 +262,31 @@ editor.customConfig.menus = [
 'link',  // 插入链接
 'list',  // 列表
 'justify',  // 对齐方式
-//'quote',  // 引用
-//'emoticon',  // 表情
-//'image',  // 插入图片
+'quote',  // 引用
+'emoticon',  // 表情
+'image',  // 插入图片
 'table',  // 表格
-//'video',  // 插入视频
-//'code',  // 插入代码
+'code',  // 插入代码
 'undo',  // 撤销
 'redo'  // 重复
 ];
+/*图片以 base64 直接嵌进正文，本程序没有上传后端；
+**服务端只放行 data:image/ 的 src，其他 src 会被丢弃。
+**单张上限 200KB：base64 后约 270KB，仍在笔记 512KB 原始体积上限之内*/
+editor.customConfig.uploadImgShowBase64 = true;
+editor.customConfig.uploadImgMaxSize = 200 * 1024;
+editor.customConfig.uploadImgMaxLength = 1;
+/*编辑器自带的 alert() 换成顶部 toast*/
+editor.customConfig.customAlert = function(msg){
+	var esc = String(msg).replace(/[&<>"']/g, function(c){
+		return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+	});
+	clearTimeout(closeToastSTO);
+	$("#toastTop").attr("style","display:block");
+	$("#toastTopTitleText").html('<i class="fas fa-exclamation-triangle"></i>&nbsp;插入失败');
+	$("#toastTopBody").html(esc.replace(/\n/g,'<br>'));
+	closeToastSTO = setTimeout(function(){$("#toastTop").attr("style","display:none");},5000);
+};
 editor.create();
 $(function () {
   $('[data-toggle="popover"]').popover()
@@ -313,7 +329,7 @@ function exportWordDo(){
 	clearTimeout(closeToastSTO);
 	$("#toastTop").attr("style","display:block");
 	$("#toastTopTitleText").html('<i class="far fa-check-circle"></i>&nbsp;文档生成完毕');
-	$("#toastTopBody").html('您的文档已开始下载。<br>若未出现下载提示，请确认浏览器是否拦截，以及在文档中是否包含引用、表情、图片、视频、代码等内容');
+	$("#toastTopBody").html('您的文档已开始下载。<br>若未出现下载提示，请确认浏览器是否拦截，以及在文档中是否包含视频内容');
 	$(".w-e-text").wordExport(<?php echo npoJson($esN ? $npoDisplayName."(只读)" : $name); ?>);
 	closeToastSTO = setTimeout(function(){$("#toastTop").attr("style","display:none");},5000);
 }
@@ -321,11 +337,36 @@ $("#exportBtnWord").click(function(){
 	clearTimeout(closeToastSTO);
 	$("#toastTop").attr("style","display:block");
 	$("#toastTopTitleText").html('<i class="fas fa-sync-alt savingIcon"></i>&nbsp;文档生成中...');
-	$("#toastTopBody").html('<span class="text-danger font-weight-bold">在文档中请勿包含引用、表情、图片、视频、代码，否则将生成失败或发生遗漏</span><br>文档正在生成导出中，请稍后');
+	$("#toastTopBody").html('<span class="text-danger font-weight-bold">在文档中请勿包含视频，否则将生成失败或发生遗漏</span><br>文档正在生成导出中，请稍后');
 	setTimeout(exportWordDo,2000);
 });
 $("#toastTopClose").click(function(){
 	$("#toastTop").attr("style","display:none");
+});
+
+/*全屏编辑：只切换 .docDiv 上的类，不依赖 Fullscreen API，
+**这样 Esc 之外任何方式退出都不会留下被浏览器锁定的元素；分享页没有这个按钮*/
+$(function(){
+	var $doc = $('.docDiv');
+	var $btn = $('#npoFullBtn');
+	if (!$btn.length) return;
+	function setFull(on){
+		$doc.toggleClass('npo-fullscreen', on);
+		$('body').css('overflow', on ? 'hidden' : '');
+		$btn.attr('title', on ? '退出全屏（Esc）' : '全屏编辑（Esc 退出）');
+		/*FontAwesome 的 JS 版会把 <i> 换成 <svg>，改 class 不会改图形，
+		**所以整块重建图标，再让 FA 自己把 <i> 转成 svg（未加载时 CSS 版照样能显示）*/
+		$btn.html('<i class="fas fa-' + (on ? 'compress' : 'expand') + '"></i>');
+		if (window.FontAwesome && FontAwesome.dom && FontAwesome.dom.i2svg) {
+			FontAwesome.dom.i2svg({ node: $btn[0] });
+		}
+	}
+	$btn.click(function(){
+		setFull(!$doc.hasClass('npo-fullscreen'));
+	});
+	$(document).on('keydown.npoFullscreen', function(e){
+		if (e.key === 'Escape' && $doc.hasClass('npo-fullscreen')) setFull(false);
+	});
 });
 
 //组合键捕获初始化

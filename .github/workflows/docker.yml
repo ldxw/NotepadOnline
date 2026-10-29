@@ -12,6 +12,11 @@ on:
         type: boolean
         required: false
         default: false
+  # 推送数字开头的标签（如 3.22）即自动构建，版本号取标签名
+  # 标签必须指向带 Dockerfile 的提交，否则会在「检查构建上下文」步骤失败
+  push:
+    tags:
+      - "[0-9]*"
 
 env:
   GHCR_IMAGE: ghcr.io/ldxw/notepadonline
@@ -51,8 +56,15 @@ jobs:
           PUSH_ALIYUN: ${{ inputs.push_aliyun }}
           ALIYUN_REGISTRY: ${{ secrets.ALIYUN_REGISTRY }}
           ALIYUN_NAMESPACE: ${{ secrets.ALIYUN_NAMESPACE }}
+          # 标签触发时 ref 是 refs/tags/3.22，手动触发时是分支，用 ref_type 区分
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
         run: |
           VERSION="$INPUT_VERSION"
+          # 推送标签触发的构建，版本号以标签名为准
+          if [ -z "$VERSION" ] && [ "$REF_TYPE" = "tag" ]; then
+            VERSION="$REF_NAME"
+          fi
           if [ -z "$VERSION" ]; then
             VERSION="$(tr -d ' \r\n' < VERSION)"
           fi

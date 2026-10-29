@@ -13,6 +13,9 @@
 <?php } ?>
 	<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" crossorigin="anonymous">
 	<link rel="stylesheet" href="<?php echo $templateUrl."assets/css/main.css";?>" crossorigin="anonymous">
+<?php if ($themeCssUrl !== '') { ?>
+	<link rel="stylesheet" href="<?php echo htmlspecialchars($themeCssUrl, ENT_QUOTES, 'UTF-8');?>">
+<?php } ?>
 	<link crossorigin="anonymous" href="https://cdn.staticfile.org/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
 	
 </head>
