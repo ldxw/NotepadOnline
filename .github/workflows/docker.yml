@@ -35,6 +35,15 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
+      # workflow 注册在默认分支上，但默认分支不含 Dockerfile，
+      # 直接运行会失败；这里提前给出可操作的提示
+      - name: 检查构建上下文
+        run: |
+          if [ ! -f Dockerfile ]; then
+            echo "::error::当前检出分支 ${{ github.ref_name }} 没有 Dockerfile，无法构建。请在 Run workflow 页面把「Use workflow from」切换为 docker 分支后重试。"
+            exit 1
+          fi
+
       - name: 解析标签
         id: meta
         env:
