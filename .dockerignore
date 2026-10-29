@@ -7,6 +7,8 @@ README.md
 LICENSE
 # .env 里有分享链签名密钥，绝不能进镜像层
 .env
+# 示例文件只是给部署者看的，运行时用不上
+.env.example
 # Apache 镜像里用不到 Nginx 配置，避免作为静态文件被读到
 nginx.conf
 # 笔记数据不进镜像，但保留 _tmp 目录内的访问限制文件

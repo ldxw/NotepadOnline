@@ -27,10 +27,14 @@ NPO最早的灵感是基于EverTools基金会的NotePad_Live。之所以延续No
 使用 `docker compose`（仓库自带 `docker-compose.yml`）：
 
 ```bash
-# 必须设置分享链签名密钥，否则分享功能不可用
-echo "NPO_SHARE_SECRET=$(openssl rand -hex 32)" > .env
+# 仓库自带 .env.example，复制后填入分享链签名密钥
+cp .env.example .env
+sed -i "s/^NPO_SHARE_SECRET=.*/NPO_SHARE_SECRET=$(openssl rand -hex 32)/" .env
 docker compose up -d
 ```
+
+`.env.example` 里只有两个变量：`NPO_SHARE_SECRET`（必填）和 `APP_VERSION`（可选，默认 `dev`）。
+Windows 下没有 `sed`，直接把 `openssl rand -hex 32` 的输出手工填进 `.env` 即可。
 
 镜像不存在时 `up -d` 会自动构建；**改了源码后必须加 `--build` 强制重建**，否则仍跑旧镜像：
 
@@ -64,8 +68,10 @@ docker run -d --name notepadonline -p 8080:80 \
 `.github/workflows/docker.yml` 需在 Actions 页面手动触发，可填版本号（留空则读仓库根目录 `VERSION`），
 构建 `linux/amd64` + `linux/arm64`，推送 `latest`、版本号、日期三种标签到 GHCR。
 
-同时推阿里云 ACR 是由输入项 `push_aliyun` 控制的，**默认开启**。开启时必须在仓库
-Settings → Secrets and variables → Actions 里配置这四个 secret，缺任何一个都会让构建失败：
+同时推阿里云 ACR 由输入项 `push_aliyun` 控制，**默认关闭**，只推 GHCR 时什么都不用配。
+
+需要推阿里云时，先勾上 `push_aliyun`，并在仓库 Settings → Secrets and variables → Actions
+里配置这四个 secret，缺任何一个都会让构建失败：
 
 | Secret | 含义 |
 | --- | --- |
@@ -73,8 +79,6 @@ Settings → Secrets and variables → Actions 里配置这四个 secret，缺�
 | `ALIYUN_NAMESPACE` | 命名空间 |
 | `ALIYUN_USERNAME` | 阿里云账号 |
 | `ALIYUN_PASSWORD` | 仓库密码 |
-
-只推 GHCR 时，触发构建时把 `push_aliyun` 关掉即可。
 
 ### 使用前请了解
 
