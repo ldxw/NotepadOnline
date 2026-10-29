@@ -20,6 +20,41 @@ $siteURL = "";
 $shareSecret = getenv('NPO_SHARE_SECRET');
 if ($shareSecret === false) $shareSecret = "";
 
+/*站点名称
+**显示在浏览器标题与导航栏品牌位，留空则回退为 "NPO"。
+**Docker 部署可用环境变量 NPO_SITE_NAME 覆盖*/
+$siteName = "NPO";
+$npoEnvSiteName = getenv('NPO_SITE_NAME');
+if ($npoEnvSiteName !== false && trim($npoEnvSiteName) !== "") $siteName = trim($npoEnvSiteName);
+
+/*顶部广播
+**标题加粗显示，正文跟在后面；两者都为空则整条广播不显示。
+**Docker 部署可用环境变量 NPO_BROADCAST_TITLE / NPO_BROADCAST_TEXT 覆盖，
+**只要变量被设置（哪怕是空值）就以环境变量为准，这样才能把默认广播置空关掉*/
+$broadcastTitle = "广播DEMO";
+$broadcastText = "这里是广播DEMO内容";
+$npoEnvBroadcastTitle = getenv('NPO_BROADCAST_TITLE');
+if ($npoEnvBroadcastTitle !== false) $broadcastTitle = trim($npoEnvBroadcastTitle);
+$npoEnvBroadcastText = getenv('NPO_BROADCAST_TEXT');
+if ($npoEnvBroadcastText !== false) $broadcastText = trim($npoEnvBroadcastText);
+
+/*站点图标（favicon）
+**填图片地址：站内相对路径（如 "/assets/image/favicon.ico"）或绝对 URL
+**（如 "https://cdn.example.com/favicon.png"）都可以。
+**留空则不输出图标链接，浏览器仍会自行请求 /favicon.ico。
+**Docker 部署可用环境变量 NPO_FAVICON 覆盖*/
+$faviconURL = "";
+$npoEnvFavicon = getenv('NPO_FAVICON');
+if ($npoEnvFavicon !== false) $faviconURL = trim($npoEnvFavicon);
+/*只放行 http(s)、data:image/ 与站内相对路径，挡掉 javascript: 之类的伪协议*/
+if ($faviconURL !== '' && preg_match('#^([a-z][a-z0-9+.\-]*):#i', $faviconURL, $npoFaviconScheme)) {
+    $npoFaviconScheme = strtolower($npoFaviconScheme[1]);
+    if ($npoFaviconScheme !== 'http' && $npoFaviconScheme !== 'https'
+        && !($npoFaviconScheme === 'data' && stripos($faviconURL, 'data:image/') === 0)) {
+        $faviconURL = "";
+    }
+}
+
 /*套用主题
 **套用主题时请确保主题存在*/
 $templateName = "default";

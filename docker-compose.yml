@@ -13,6 +13,14 @@ services:
       # 分享链签名密钥，缺失时分享功能不可用（容器启动会在日志里打印警告）；
       # 在 .env 中设置 NPO_SHARE_SECRET
       NPO_SHARE_SECRET: ${NPO_SHARE_SECRET:-}
+      # 站点名称，显示在浏览器标题与导航栏；.env 里不设则用 "NPO"
+      NPO_SITE_NAME: ${NPO_SITE_NAME-NPO}
+      # 顶部广播条的标题与正文。这里用 `-` 而不是 `:-`：只有 .env 里完全没写才取默认值，
+      # 写了空值（NPO_BROADCAST_TITLE=）就是显式置空，两个都空则整条广播不显示
+      NPO_BROADCAST_TITLE: ${NPO_BROADCAST_TITLE-广播DEMO}
+      NPO_BROADCAST_TEXT: ${NPO_BROADCAST_TEXT-这里是广播DEMO内容}
+      # 站点图标地址（可选）。站内相对路径或绝对 URL 均可，留空则不输出图标链接
+      NPO_FAVICON: ${NPO_FAVICON-}
     security_opt:
       - no-new-privileges:true
     # 只保留 Apache 以 root 绑 80 并降权到 www-data 所需的能力
@@ -32,7 +40,12 @@ services:
         max-size: "10m"
         max-file: "3"
     volumes:
+      # 默认用命名卷，数据存在 Docker 管理的卷里，随容器重建保留
       - npo-data:/var/www/html/_tmp
+      # 想直接在宿主机上看到笔记文件，改用下面这行绑定目录（二选一，不能同时挂）：
+      # - ./data:/var/www/html/_tmp
+      # 换绑定时记得：mkdir -p data && sudo chown -R 33:33 data
+      # （33 是容器内 www-data 的 uid，否则 PHP 无法写入 .data 与 error.log）
 
 volumes:
   npo-data:

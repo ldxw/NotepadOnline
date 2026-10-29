@@ -7,7 +7,10 @@
     <meta name="author" content="94joy.cn" />
     <meta name="keywords" content="跨端传输,同屏传输,在线笔记,简单,简约,笔记,94Joy,NotePad,NPO,NotePadOnLine" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><?php echo htmlspecialchars($esN ? $npoDisplayName."(只读)" : $name, ENT_QUOTES, 'UTF-8'); ?> - NPO</title>
+    <title><?php echo htmlspecialchars($esN ? $npoDisplayName."(只读)" : $name, ENT_QUOTES, 'UTF-8'); ?> - <?php echo htmlspecialchars($siteName, ENT_QUOTES, 'UTF-8'); ?></title>
+<?php if ($faviconURL !== '') { ?>
+	<link rel="icon" href="<?php echo htmlspecialchars($faviconURL, ENT_QUOTES, 'UTF-8'); ?>">
+<?php } ?>
 	<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" crossorigin="anonymous">
 	<link rel="stylesheet" href="<?php echo $templateUrl."assets/css/main.css";?>" crossorigin="anonymous">
 	<link crossorigin="anonymous" href="https://cdn.staticfile.org/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
@@ -20,7 +23,7 @@
 			<a href="/" id="newPageBtn" class="btn btn-primary" target="_blank" data-toggle="tooltip" data-placement="bottom" title="新建一个空白文档"><i class="fas fa-plus"></i></a>
 			<a href="javascript:void(0)" class="btn btn-light" onclick="history.go(0)" data-toggle="tooltip" data-placement="bottom" title="刷新页面"><i class="fas fa-sync-alt"></i></a>
 		</div>
-		<span class="navbar-brand">&nbsp;&nbsp;<?php echo htmlspecialchars($esN ? $npoDisplayName."(只读)" : $name, ENT_QUOTES, 'UTF-8'); ?> - NPO</span>
+		<span class="navbar-brand">&nbsp;&nbsp;<?php echo htmlspecialchars($esN ? $npoDisplayName."(只读)" : $name, ENT_QUOTES, 'UTF-8'); ?> - <?php echo htmlspecialchars($siteName, ENT_QUOTES, 'UTF-8'); ?></span>
 		<small id="savingStatus" class="text-muted">&nbsp;<i class="fas fa-download"></i>&nbsp;正在读取...</small>
 		&nbsp;
 		<!-- <div class="spinner-border text-secondary spinner-border-sm" role="status"><span class="sr-only"></span></div>&nbsp;正在保存... -->
@@ -39,9 +42,12 @@
 <!-- 			<div class="broadcastTop alert alert-info mb-0" role="alert">
 			  <strong>广播</strong> 顶部广播
 			</div> -->
+			<?php if ($broadcastTitle !== '' || $broadcastText !== '') { ?>
 			<div class="broadcastTop text-info d-none d-lg-block">
-			  <strong>广播DEMO</strong> 这里是广播DEMO内容
+			  <?php if ($broadcastTitle !== '') { ?><strong><?php echo htmlspecialchars($broadcastTitle, ENT_QUOTES, 'UTF-8'); ?></strong><?php } ?>
+			  <?php echo htmlspecialchars($broadcastText, ENT_QUOTES, 'UTF-8'); ?>
 			</div>
+			<?php } ?>
 		  <div class="btn-group">
 			<a tabindex="0" id="teamworkBtn" class="btn btn-light" role="button" data-toggle="popover" data-placement="bottom" data-trigger="hover" title="开发日志" data-content='"协作"功能目前正在开发中，可能会在数个版本后更新，也可能中途被砍掉'><i class="fas fa-user-friends"></i></a>
 			<a href="#" class="btn btn-light" id="mobBtn" data-toggle="popover" data-placement="bottom" data-trigger="hover" title="移动端扫码以继续访问" data-html=true data-qr="<?php echo htmlspecialchars($URL."/".$esL.$name, ENT_QUOTES, 'UTF-8');?>" data-content='<img width=100% class="npo-qr" alt="当前链接二维码"/>'><i class="fas fa-mobile-alt"></i></a>
