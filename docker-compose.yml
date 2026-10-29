@@ -27,9 +27,9 @@ services:
       # 页脚文字（可选）。与固定的「© 年份 站点名」合成一行，整行水平居中；
       # 同样用 `-`，.env 里写了空值就是显式不显示文字
       NPO_FOOTER_TEXT: ${NPO_FOOTER_TEXT-}
-      # 前端 CDN 公共前缀（可选）。默认 https://cdn.staticfile.org，
+      # 前端 CDN 公共前缀（可选）。默认 https://cdn.staticfile.net，
       # 留空或格式不对都回退默认；适合整站换镜像源（如自建 / 内网 CDN）
-      NPO_CDN_BASE: ${NPO_CDN_BASE-https://cdn.staticfile.org}
+      NPO_CDN_BASE: ${NPO_CDN_BASE-https://cdn.staticfile.net}
       # 下面 8 个是单库地址（可选），优先于上面的前缀，只换其中一个时用。
       # 可填 http(s) 绝对地址，或单个 / 开头的站内路径（如 /vendor/jquery.min.js）
       NPO_CDN_JQUERY: ${NPO_CDN_JQUERY-}

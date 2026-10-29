@@ -151,7 +151,7 @@ margin:auto;
 #editorDiv{
 	height:calc(100% - 34px - 2rem);
 }
-/*编辑扩展工具条：水平线 / 字号 / 行距 / 表格 / 图片 / 字数
+/*编辑扩展工具条：只剩字数统计
 **窄屏由 Bootstrap 的 d-none 隐藏，那时 #editorDiv 要在下面的媒体查询里还回 2rem*/
 #npoExtraBar{
 	display:flex;
@@ -162,24 +162,7 @@ margin:auto;
 	border-bottom:1px solid #ececec;
 	user-select:none;
 	white-space:nowrap;
-	/*下拉菜单要盖住 z-index:25000 的 wangEditor 工具栏，否则展开后会被压在下面*/
 	position:relative;
-	z-index:25002;
-}
-#npoExtraBar .btn{
-	padding:.125rem .5rem;
-	font-size:.8125rem;
-	line-height:1.4;
-}
-#npoExtraBar .npoExSel{
-	width:auto;
-	height:1.75rem;
-	padding:0 .25rem;
-	margin:0 .125rem;
-	font-size:.8125rem;
-}
-#npoExtraBar .dropdown-menu{
-	font-size:.8125rem;
 }
 /*字数统计贴到工具条右端*/
 #npoWordCount{

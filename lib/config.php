@@ -80,18 +80,18 @@ if ($npoEnvFooterText !== false) $footerText = trim($npoEnvFooterText);
 
 /*外部 CDN 资源（可选）
 **页面的 jquery / bootstrap / font-awesome / wangEditor / clipboard / FileSaver
-**默认从 cdn.staticfile.org 加载。想换自建镜像或本地文件时有两种方式：
+**默认从 cdn.staticfile.net 加载。想换自建镜像或本地文件时有两种方式：
 **1) NPO_CDN_BASE 换掉整站前缀，各库的相对路径保持不变；
 **2) NPO_CDN_xxx 单独指定某个库的完整地址，优先级高于前缀，适合只给某个库加速。
 **任何一项留空都回落到默认值，所以全部不设时页面输出与原来完全一致。
 **只放行 http(s) 绝对地址和以单个 / 开头的站内路径，其余（javascript: 等伪协议）一律忽略*/
-$cdnBase = "https://cdn.staticfile.org";
+$cdnBase = "https://cdn.staticfile.net";
 $npoEnvCdnBase = getenv('NPO_CDN_BASE');
 if ($npoEnvCdnBase !== false && trim($npoEnvCdnBase) !== "") {
     $cdnBase = rtrim(trim($npoEnvCdnBase), "/");
 }
 /*前缀本身也只允许 http(s)，防止被写成伪协议*/
-if (!preg_match('#^https?://[^/\s]+#i', $cdnBase)) $cdnBase = "https://cdn.staticfile.org";
+if (!preg_match('#^https?://[^/\s]+#i', $cdnBase)) $cdnBase = "https://cdn.staticfile.net";
 
 /*库名 => array(覆盖变量名, 相对路径)；数组顺序即页面上 8 处引用的顺序*/
 $npoCdnLibs = array(
