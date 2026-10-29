@@ -59,7 +59,13 @@
 @media (max-width:991.98px){
 	.navbarTop{
 		/*右上角折叠按钮约占 4rem，给标题让出这段宽度*/
-		padding-right:4.5rem;
+		padding-right:3.5rem;
+		/*折叠菜单是从导航栏里向下溢出的，而下面 .docDiv 里的 #toolNone 在 DOM 里更靠后、
+		**不透明，不抬高导航栏就会被那条横幅盖住，菜单右侧的按钮点不到。
+		**只在窄屏加：宽屏加了会让导航栏变成层叠上下文，把内部下拉(20000)关在里层，
+		**反被 .w-e-toolbar(25000) 盖住；取值低于 Bootstrap 的 .modal-backdrop(1040)，
+		**这样打开弹窗时遮罩仍然能压暗导航栏*/
+		z-index:1030;
 	}
 	.navbarTop .navbar-brand{
 		/*flex-basis 归零，标题只吃剩余空间，不会把同行元素挤到下一行*/
@@ -68,11 +74,32 @@
 		overflow:hidden;
 		text-overflow:ellipsis;
 		white-space:nowrap;
+		/*Bootstrap 默认 1.25rem，手机上偏大，「文档名 - 站点名」只剩开头的几个字*/
+		font-size:1rem;
 	}
 	/*保存状态保留但收窄字号，避免和标题抢位置*/
 	#savingStatus{
 		flex:0 0 auto;
 		font-size:.75rem;
+	}
+	/*顶栏按钮同比例缩小，省下来的宽度都留给标题*/
+	.navbarTop .btn{
+		padding:.25rem .5rem;
+	}
+	/*折叠按钮跟着缩，否则它一个就吃掉右上角近 3rem*/
+	.navbarTopCollapse{
+		top:.75rem;
+		padding:.25rem .5rem;
+		font-size:1rem;
+	}
+}
+/*再窄一点（多数竖屏手机）时给标题让出更多位置*/
+@media (max-width:575.98px){
+	#savingStatus{
+		max-width:5.5rem;
+		overflow:hidden;
+		text-overflow:ellipsis;
+		white-space:nowrap;
 	}
 }
 #navbarSupportedContent{
