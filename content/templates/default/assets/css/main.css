@@ -147,8 +147,46 @@ margin:auto;
     resize: none;
 	margin-bottom:0;/*抵消BS4.2的问题*/
 }
+/*编辑扩展工具条占 2rem，要连同 34px 的 wangEditor 工具栏一起从编辑器高度里扣掉*/
 #editorDiv{
-	height:calc(100% - 34px);
+	height:calc(100% - 34px - 2rem);
+}
+/*编辑扩展工具条：水平线 / 字号 / 行距 / 表格 / 图片 / 字数
+**窄屏由 Bootstrap 的 d-none 隐藏，那时 #editorDiv 要在下面的媒体查询里还回 2rem*/
+#npoExtraBar{
+	display:flex;
+	align-items:center;
+	height:2rem;
+	padding:0 .5rem;
+	background-color:#f7f7f7;
+	border-bottom:1px solid #ececec;
+	user-select:none;
+	white-space:nowrap;
+	/*下拉菜单要盖住 z-index:25000 的 wangEditor 工具栏，否则展开后会被压在下面*/
+	position:relative;
+	z-index:25002;
+}
+#npoExtraBar .btn{
+	padding:.125rem .5rem;
+	font-size:.8125rem;
+	line-height:1.4;
+}
+#npoExtraBar .npoExSel{
+	width:auto;
+	height:1.75rem;
+	padding:0 .25rem;
+	margin:0 .125rem;
+	font-size:.8125rem;
+}
+#npoExtraBar .dropdown-menu{
+	font-size:.8125rem;
+}
+/*字数统计贴到工具条右端*/
+#npoWordCount{
+	margin-left:auto;
+	padding-left:.5rem;
+	font-size:.8125rem;
+	color:#6c757d;
 }
 /*3.5rem = 导航栏高度，2rem = 页脚高度，两者都要扣掉，否则页面会溢出*/
 .docDiv{
@@ -168,21 +206,24 @@ margin:auto;
 }
 .npoFooterInner{
 	display:flex;
-	justify-content:space-between;
+	/*自定义文字与版权合成一行，整条内容水平居中*/
+	justify-content:center;
 	align-items:center;
 	height:100%;
 	overflow:hidden;
 	white-space:nowrap;
 }
 .npoFooterText{
+	/*超长时收缩并打省略号，免得把居中这一行撑出容器*/
+	flex:0 1 auto;
+	min-width:0;
 	overflow:hidden;
 	text-overflow:ellipsis;
+	/*文字与版权之间的间隔；只有版权时不占位，仍然严格居中*/
+	margin-right:1rem;
 }
 .npoFooterCopy{
-	flex-shrink:0;
-	/*没有左侧文字时也要靠右，不能依赖 space-between*/
-	margin-left:auto;
-	padding-left:1rem;
+	flex:0 0 auto;
 }
 /*全屏编辑时 .docDiv 固定满屏，页脚让位*/
 .docDiv.npo-fullscreen ~ .npoFooter{
@@ -191,6 +232,10 @@ margin:auto;
 @media (max-width:991.98px){
 	.npoFooter{
 		font-size:.75rem;
+	}
+	/*窄屏把扩展工具条整个藏掉了，编辑器高度要把那 2rem 还回来*/
+	#editorDiv{
+		height:calc(100% - 34px);
 	}
 }
 /*全屏编辑按钮，绝对定位压在工具栏右端；工具栏补右侧留白避免挡住菜单*/

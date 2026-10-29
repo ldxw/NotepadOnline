@@ -33,7 +33,8 @@ sed -i "s/^NPO_SHARE_SECRET=.*/NPO_SHARE_SECRET=$(openssl rand -hex 32)/" .env
 docker compose up -d
 ```
 
-`.env.example` 里只有两个变量：`NPO_SHARE_SECRET`（必填）和 `APP_VERSION`（可选，默认 `dev`）。
+`.env.example` 里只有 `NPO_SHARE_SECRET`（必填）和 `APP_VERSION`（可选，默认 `dev`）两项需要动手，
+其余都是注释掉的示例，按需取消注释。完整清单见下面的「可选的外观变量」。
 Windows 下没有 `sed`，直接把 `openssl rand -hex 32` 的输出手工填进 `.env` 即可。
 
 镜像不存在时 `up -d` 会自动构建；**改了源码后必须加 `--build` 强制重建**，否则仍跑旧镜像：
@@ -130,7 +131,7 @@ docker compose exec notepadonline tail -20 /var/www/html/_tmp/error.log
 | `NPO_BROADCAST_TEXT` | `这里是广播DEMO内容` | 顶部广播条的正文 |
 | `NPO_FAVICON` | 空 | 浏览器标签页图标地址，站内相对路径或绝对 URL 均可；留空则不输出图标链接 |
 | `NPO_THEME` | 空 | 配色主题名，取 `content/themes/` 下的文件名去掉 `.css`；内置 `dark`、`sepia`，留空或填不存在的名字都回退默认浅色 |
-| `NPO_FOOTER_TEXT` | 空 | 页脚左侧的自定义文字；右侧固定显示「© 年份 站点名」，留空则只有版权 |
+| `NPO_FOOTER_TEXT` | 空 | 页脚的额外文字，与固定的「© 年份 站点名」合成一行居中显示；留空则只有版权 |
 
 想用默认广播就**不写**这两行；想关掉广播，把变量显式设为空值：
 
@@ -165,16 +166,18 @@ NPO_THEME=dark
 `/content/themes/` 会随镜像一起打包（Dockerfile 里 `COPY .`），
 自定义主题放进这个目录后重新构建镜像就能用；用绑定挂载部署时无需重建。
 
-**页脚**：编辑页与分享页底部都有一条 2rem 高的页脚，右侧固定显示 `© 年份 站点名`
-（年份按访问时的服务器时间取），左侧可放自定义文字：
+**页脚**：编辑页与分享页底部都有一条 2rem 高的页脚，内容（自定义文字 + `© 年份 站点名`）
+排成一行水平居中；年份按访问时的服务器时间取：
 
 ```ini
 NPO_FOOTER_TEXT=由 94Joy 提供
 ```
 
 这个变量和其它外观变量一样是「设置即覆盖」：不写就只有版权，
-写了空值（`NPO_FOOTER_TEXT=`）也是只有版权。窄屏（<992px）下页脚仍然显示，
-只是字号从 13px 缩到 12px；进入全屏编辑时页脚会隐藏，退出后恢复。
+写了空值（`NPO_FOOTER_TEXT=`）也是只有版权。只显示版权时它同样居中，
+不会因为少了左边的文字而偏向一侧。
+文字过长时会在右侧打省略号，不会撑破页脚或产生横向滚动。
+窄屏（<992px）下页脚仍然显示，只是字号从 13px 缩到 12px；进入全屏编辑时页脚会隐藏，退出后恢复。
 文字里可以带空格和中文，HTML 特殊字符会被转义，不会当成标签渲染。
 
 ## 编辑器能力
@@ -193,8 +196,100 @@ NPO_FOOTER_TEXT=由 94Joy 提供
   窄屏不显示。按 `Esc` 或再点一次按钮退出；分享页没有这个按钮。
 - **视频**：工具栏**没有**视频按钮，服务端也会剥离 `<video>`/`<iframe>`，粘贴带视频的内容会丢。
 
+工具栏下面还有一条**扩展工具条**（仅编辑页、仅 ≥992px 显示），补了上面工具栏没有的六项：
+
+| 控件 | 用法 |
+| --- | --- |
+| 水平线按钮 | 在当前段落下方插入 `<hr>` |
+| 字号下拉 | 12–36px，作用于选中文字；没选文字时改整个段落 |
+| 行距下拉 | 1.0–3.0，作用于选区涉及的块级元素（段落、标题、列表项等） |
+| 表格下拉 | 上方/下方插入行、删除当前行、左右插入列、删除当前列、合并选中单元格、拆分合并过的单元格、删除整个表格 |
+| 图片宽度 / 对齐 / 还原 | 先点一下图片，再选宽度（25%/50%/75%/100%/原始大小）、对齐（左/中/右），或点「还原图片」清掉设置 |
+| 字数统计 | 贴在最右端，按**非空白字符**数统计，输入即时更新 |
+
+另外，**粘贴 Markdown 文本会自动转成 HTML**：识别标题 `#`、粗体 `**`、斜体 `*`、删除线 `~~`、
+行内代码 `` ` ``、围栏代码块 ```` ``` ````、列表 `-`/`1.`、引用 `>`、分割线 `---`、链接 `[文字](https://…)`。
+只有在剪贴板里**没有富文本**（`text/html`）、且纯文本内容看起来确实是 Markdown 时才会接管，
+其余情况走浏览器/编辑器原本的粘贴逻辑，所以从网页或 Word 复制带格式的内容不受影响。
+
 体积上限仍是单篇 **512KB 原始内容**（base64 编码后 4MB），插入大图前留意这个总数。
-引用、代码块、表情、图片都会随笔记一起保存，重载后原样恢复，也会随主题切换配色。
+引用、代码块、表情、图片、表格与上面这些排版都会随笔记一起保存，重载后原样恢复，也会随主题切换配色。
+扩展工具条与编辑器一样是**自动保存**的，改完不用点任何按钮，约两秒内落库。
+
+### 前端 CDN 变量
+
+页面用到的 jQuery、Bootstrap、Font Awesome、wangEditor、clipboard.js、FileSaver.js
+默认从 `https://cdn.staticfile.org` 加载，**全部可通过环境变量替换**，不配置时行为与原来完全一致。
+
+| 变量 | 默认值 | 作用 |
+| --- | --- | --- |
+| `NPO_CDN_BASE` | `https://cdn.staticfile.org` | 公共前缀，整站换镜像源改这一个 |
+| `NPO_CDN_JQUERY` | 前缀 + `/jquery/3.4.1/jquery.min.js` | 单独覆盖 jQuery |
+| `NPO_CDN_BOOTSTRAP_CSS` | 前缀 + `/twitter-bootstrap/4.4.1/css/bootstrap.min.css` | 单独覆盖 Bootstrap 样式 |
+| `NPO_CDN_BOOTSTRAP_JS` | 前缀 + `/twitter-bootstrap/4.4.1/js/bootstrap.bundle.min.js` | 单独覆盖 Bootstrap 脚本 |
+| `NPO_CDN_FONTAWESOME_CSS` | 前缀 + `/font-awesome/5.13.0/css/all.min.css` | 单独覆盖 Font Awesome 样式 |
+| `NPO_CDN_FONTAWESOME_JS` | 前缀 + `/font-awesome/5.13.0/js/all.min.js` | 单独覆盖 Font Awesome 脚本 |
+| `NPO_CDN_WANGEDITOR` | 前缀 + `/wangEditor/10.0.13/wangEditor.min.js` | 单独覆盖富文本编辑器 |
+| `NPO_CDN_CLIPBOARD` | 前缀 + `/clipboard.js/2.0.6/clipboard.min.js` | 单独覆盖剪贴板库 |
+| `NPO_CDN_FILESAVER` | 前缀 + `/FileSaver.js/1.3.8/FileSaver.min.js` | 单独覆盖文件保存库 |
+
+单库变量优先于前缀；任一变量留空或格式不合法都回退到默认地址，不会因为写错就白屏。
+
+- 前缀与单库地址只接受 `http(s)://` 绝对地址。
+- 单库地址另外接受**站内路径**（单个 `/` 开头，如 `/vendor/jquery.min.js`），方便完全离线部署。
+  `//host/x` 这种协议相对写法不接受。
+- 换成内网/自建源时记得这几个库的**子路径要与上表一致**，否则页面会缺样式或脚本报错。
+
+`jquery.wordexport.js` 和 `qrcode.min.js` 是仓库自带的本地文件（`assets/js/`），不走 CDN 变量。
+
+## 不使用 Docker 的部署（纯 PHP）
+
+可以。Docker 只是把「PHP + Apache + 扩展 + 权限」打好了包，程序本身没有容器依赖。
+按下面四步手工搭：
+
+1. **环境**：PHP 8.1+（推荐 8.3）+ Apache（开 `mod_rewrite`）或 Nginx，把仓库解压到站点根目录。
+   PHP 扩展至少要有 **mbstring、dom、json、session、hash、libxml**。
+   其中 `dom` 是必须的——HTML 清理在无 DOMDocument 时会退化成黑名单正则，安全性明显下降。
+2. **让 `_tmp/` 可写**：Web 进程用户（Debian/Ubuntu 上是 `www-data`）必须能写这个目录。
+
+   ```bash
+   mkdir -p _tmp
+   sudo chown -R www-data:www-data _tmp
+   sudo chmod 775 _tmp
+   ```
+
+3. **让 `.htaccess` 生效**（Apache）：站点配置里 `AllowOverride All`，并确认 `mod_rewrite` 已启用：
+
+   ```apache
+   <Directory /var/www/notepadonline>
+       AllowOverride All
+       Require all granted
+   </Directory>
+   ```
+
+   这一步不能省：分享链路由、`_tmp/` 与 `.data` 的访问拒绝都靠 `.htaccess`。
+   不开 `AllowOverride` 的话笔记文件能被直接下载。用 Nginx 则改用仓库自带的 `nginx.conf`
+   （注意里面 `root` 与 PHP-FPM 的 socket 路径要按实际环境改）。
+
+4. **传环境变量**：PHP 里读的是 `getenv()`，不在 `.env` 文件里。三种常见做法：
+
+   - Apache：在站点配置或 `.htaccess` 里 `SetEnv NPO_SHARE_SECRET xxxx`
+   - php-fpm：在 pool 配置里 `env[NPO_SHARE_SECRET] = xxxx`
+   - Nginx + FPM：在 `location ~ \.php$` 里加 `fastcgi_param NPO_SHARE_SECRET xxxx;`
+
+   懒得配环境变量时，也可以直接改 `lib/config.php` 里各变量的默认值，效果一样
+   （只是升级时要手动合并）。
+
+   上面「可选的外观变量」和「前端 CDN 变量」全部走同一套注入方式，
+   一个都不设时页面与你现在的部署一模一样，**不配也能正常打开**。
+
+容器专属的东西在纯 PHP 部署里都用不上：`Dockerfile`、`docker/` 目录（其中 `apache.conf`
+里的 `/_tmp/` 拦截可以用 `.htaccess` 替代）、`docker-compose.yml`、镜像 `HEALTHCHECK`。
+安全响应头（`X-Content-Type-Options`、`X-Frame-Options` 等）是在 PHP 层下发的，
+不需要 Web 服务器额外配置。`.env` 文件本身不要放进可访问目录（仓库 `.htaccess` 已拦，
+但纯手工部署时确认一下它没被别的配置暴露）。
+
+起步验证：访问站点根路径会 **302 跳到一个随机笔记名**，看到编辑器页面即正常。
 
 ### 自行构建镜像（GitHub Actions）
 

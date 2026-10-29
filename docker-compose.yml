@@ -24,9 +24,22 @@ services:
       # 配色主题（可选）。取 content/themes/ 下的文件名（不含 .css），
       # 内置 dark、sepia；留空或填不存在的名字都回退默认浅色
       NPO_THEME: ${NPO_THEME-}
-      # 页脚文字（可选）。显示在页面底部左侧，右侧固定为「© 年份 站点名」；
+      # 页脚文字（可选）。与固定的「© 年份 站点名」合成一行，整行水平居中；
       # 同样用 `-`，.env 里写了空值就是显式不显示文字
       NPO_FOOTER_TEXT: ${NPO_FOOTER_TEXT-}
+      # 前端 CDN 公共前缀（可选）。默认 https://cdn.staticfile.org，
+      # 留空或格式不对都回退默认；适合整站换镜像源（如自建 / 内网 CDN）
+      NPO_CDN_BASE: ${NPO_CDN_BASE-https://cdn.staticfile.org}
+      # 下面 8 个是单库地址（可选），优先于上面的前缀，只换其中一个时用。
+      # 可填 http(s) 绝对地址，或单个 / 开头的站内路径（如 /vendor/jquery.min.js）
+      NPO_CDN_JQUERY: ${NPO_CDN_JQUERY-}
+      NPO_CDN_BOOTSTRAP_CSS: ${NPO_CDN_BOOTSTRAP_CSS-}
+      NPO_CDN_BOOTSTRAP_JS: ${NPO_CDN_BOOTSTRAP_JS-}
+      NPO_CDN_FONTAWESOME_CSS: ${NPO_CDN_FONTAWESOME_CSS-}
+      NPO_CDN_FONTAWESOME_JS: ${NPO_CDN_FONTAWESOME_JS-}
+      NPO_CDN_WANGEDITOR: ${NPO_CDN_WANGEDITOR-}
+      NPO_CDN_CLIPBOARD: ${NPO_CDN_CLIPBOARD-}
+      NPO_CDN_FILESAVER: ${NPO_CDN_FILESAVER-}
     security_opt:
       - no-new-privileges:true
     # 只保留 Apache 以 root 绑 80 并降权到 www-data 所需的能力

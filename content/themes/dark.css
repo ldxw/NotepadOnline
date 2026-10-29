@@ -180,6 +180,15 @@ a:hover {
 	border-top-color: #2c2c2c;
 	color: #9a9a9a;
 }
+/*编辑扩展工具条与字数统计，跟着工具栏走
+**（.btn-light / .form-control / .dropdown-menu 上面已经覆盖过，这里只补容器本身）*/
+#npoExtraBar {
+	background-color: #1f1f1f;
+	border-bottom-color: #2c2c2c;
+}
+#npoWordCount {
+	color: #9a9a9a;
+}
 /*下列规则都提高了特异性：wangEditor 会在 head 末尾再注入一份样式表，
 **同特异性下后加载的内置样式会赢，写同级选择器不会生效*/
 .w-e-text-container .w-e-text blockquote {
