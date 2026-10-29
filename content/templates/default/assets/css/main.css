@@ -83,13 +83,41 @@
 		border-top:1px solid #ececec;
 		box-shadow:0 .5rem 1rem rgba(0,0,0,.12);
 	}
-	/*面板里 .dropdown 是块级元素，会和上面的按钮组各占一行；改成行内块配合 text-align:right，
-	**按钮组与「更多」「主题」并排靠右。.btn-group 本身已是 inline-flex，不动它。
-	**必须 top 对齐：菜单展开后这个行内块的高度会变成「按钮 + 整块菜单」，用 middle 会把同行的
-	**「主题」按钮对齐到那个高盒的中线上，飘到菜单腰部去*/
-	.navbarTop .navbar-collapse > .dropdown{
-		display:inline-block;
-		vertical-align:top;
+	/*面板里两个下拉各占一行、铺满面板宽度。
+	**不能用 inline-block：下面菜单是 width:100% 的静态定位元素，百分比要相对父级算，
+	**而父级宽又要由内容撑开（收缩适应），两者互为条件会形成尺寸环，最终只剩
+	**Bootstrap 的 min-width:10rem 兜底，菜单缩成 160px 一条窄块。
+	**并且「更多」菜单展开后会把行内块父级撑到近 500px 高，同处一行的「主题」按钮
+	**跟着被顶到别处（截图里那个漂在右下角的调色板）。块级 + 满宽两个问题一起消失。
+	**必须用 id 选择器：文件末尾的 #moreTog,#npoThemeTog{display:inline-block} 是
+	**全宽度生效的 id 规则，只写 .dropdown 这类 class 组合特异性不够，会被它盖掉*/
+	.navbarTop .navbar-collapse > #moreTog,
+	.navbarTop .navbar-collapse > #npoThemeTog{
+		display:block;
+		width:100%;
+		margin-top:.5rem;
+	}
+	/*面板是满宽浮层，不像顶栏那样需要为标题省空间。四个图标按钮（团队/手机/分享/设置）
+	**平分一整行，每个触摸目标约 90px；原来挤在右侧 150px 里、中心间距只有 34px，
+	**手指容易落到相邻按钮上（截图里点「分享」弹出的是「设置」）*/
+	.navbarTop .navbar-collapse > .btn-group{
+		display:flex;
+		width:100%;
+	}
+	.navbarTop .navbar-collapse > .btn-group > .btn{
+		flex:1 1 0;
+		padding:.5rem 0;
+		font-size:1.125rem;
+	}
+	/*两个下拉的触发按钮也放大到整行：按钮和它展开的菜单都是满宽的，只有图标靠左，
+	**两者左边缘对齐才像一个整体；顺带把触摸目标从 90px 宽放大到整行*/
+	.navbarTop .navbar-collapse > #moreTog .btn,
+	.navbarTop .navbar-collapse > #npoThemeTog .btn{
+		display:block;
+		width:100%;
+		padding:.5rem .75rem;
+		font-size:1.125rem;
+		text-align:left;
 	}
 	/*下拉菜单在窄屏改成就地展开：绝对定位的浮层会从按钮往左伸出去，盖住整个头部，
 	**手指也没法把它拖开。静态定位后菜单跟着面板走，面板自己可滚动*/

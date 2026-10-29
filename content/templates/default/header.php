@@ -66,8 +66,8 @@
 			</div>
 			<?php } ?>
 		  <div class="btn-group">
-			<a tabindex="0" id="teamworkBtn" class="btn btn-light" role="button" data-toggle="popover" data-placement="bottom" data-trigger="hover" title="开发日志" data-content='"协作"功能目前正在开发中，可能会在数个版本后更新，也可能中途被砍掉'><i class="fas fa-user-friends"></i></a>
-			<a href="#" class="btn btn-light" id="mobBtn" data-toggle="popover" data-placement="bottom" data-trigger="hover" title="移动端扫码以继续访问" data-html=true data-qr="<?php echo htmlspecialchars($URL."/".$esL.$name, ENT_QUOTES, 'UTF-8');?>" data-content='<img width=100% class="npo-qr" alt="当前链接二维码"/>'><i class="fas fa-mobile-alt"></i></a>
+			<a tabindex="0" id="teamworkBtn" class="btn btn-light" role="button" data-toggle="popover" data-placement="bottom" data-trigger="hover focus" title="开发日志" data-content='"协作"功能目前正在开发中，可能会在数个版本后更新，也可能中途被砍掉'><i class="fas fa-user-friends"></i></a>
+			<a href="#" class="btn btn-light" id="mobBtn" data-toggle="popover" data-placement="bottom" data-trigger="hover focus" title="移动端扫码以继续访问" data-html=true data-qr="<?php echo htmlspecialchars($URL."/".$esL.$name, ENT_QUOTES, 'UTF-8');?>" data-content='<img width=100% class="npo-qr" alt="当前链接二维码"/>'><i class="fas fa-mobile-alt"></i></a>
 			<!-- <a href="#" class="btn btn-light" id="shareBtn" data-toggle="tooltip" data-placement="bottom" title="只读分享给他人"><i class="fas fa-share-square"></i>&nbsp;只读分享</a> -->
 			<a href="#" class="btn btn-light" id="shareBtn" data-toggle="modal" data-target="#shareWindow"><i class="fas fa-share-square"></i></a>
 			
