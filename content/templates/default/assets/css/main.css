@@ -46,11 +46,34 @@
 .navbarTop{
 	/*z-index: 30000;*/
 	height: 3.5rem;
+	/*折叠按钮是绝对定位的，锚点要定在导航栏上*/
+	position: relative;
 }
 .navbarTopCollapse{
 	position: absolute;
 	top:.5rem;
 	right:.5rem;
+}
+/*窄屏（<992px）才有折叠按钮，标题过长会横向撑过去把它盖住、点不到
+**Bootstrap 的 .navbar-brand 带 white-space:nowrap，不额外处理就不肯收缩*/
+@media (max-width:991.98px){
+	.navbarTop{
+		/*右上角折叠按钮约占 4rem，给标题让出这段宽度*/
+		padding-right:4.5rem;
+	}
+	.navbarTop .navbar-brand{
+		/*flex-basis 归零，标题只吃剩余空间，不会把同行元素挤到下一行*/
+		flex:1 1 0;
+		min-width:0;
+		overflow:hidden;
+		text-overflow:ellipsis;
+		white-space:nowrap;
+	}
+	/*保存状态保留但收窄字号，避免和标题抢位置*/
+	#savingStatus{
+		flex:0 0 auto;
+		font-size:.75rem;
+	}
 }
 #navbarSupportedContent{
 	background-color: #fff;
@@ -404,9 +427,26 @@ height:100%;
 	color: #000;
 	text-decoration: none;
 }
-#moreTog{
+#moreTog,
+#npoThemeTog{
 	display: inline-block;
 }
-#moreBtn::after{
+#moreBtn::after,
+#npoThemeBtn::after{
 	display: none;
+}
+/*主题菜单：勾号只给当前选中的那一项显示，否则三项前面都挂着勾分不清
+**切换逻辑在 footer.php 里，这里只管显示*/
+.npoThemeItem .npoThemeCheck{
+	display:none;
+	width:1em;
+	margin-right:.25rem;
+}
+.npoThemeItem.active .npoThemeCheck{
+	display:inline-block;
+}
+/*选中项底色三套主题各有一套配色，这里是默认主题的兜底**/
+.npoThemeItem.active{
+	background-color:#e3f2fd;
+	color:#555;
 }

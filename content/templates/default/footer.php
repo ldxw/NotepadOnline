@@ -524,6 +524,32 @@ $(function(){
 });
 <?php } ?>
 
+//主题切换
+/*用户在页面上手选的主题存在 localStorage，head 里那段脚本会在页面渲染前抢先应用，
+**这里只负责点击切换、把选择写回去，以及同步菜单上的高亮*/
+$(function(){
+	var npoThemeLinks = <?php echo npoJson($npoThemeList); ?>;
+	function npoThemeMark(key){
+		$('.npoThemeItem').removeClass('active').filter('[data-npo-theme="' + key + '"]').addClass('active');
+	}
+	function npoThemeApply(key){
+		if (!Object.prototype.hasOwnProperty.call(npoThemeLinks, key)) key = 'default';
+		var link = document.getElementById('npoThemeLink');
+		if (link) link.href = npoThemeLinks[key];
+		document.documentElement.setAttribute('data-npo-theme', key);
+		npoThemeMark(key);
+	}
+	/*head 里已经按 localStorage 切过一次，这里只把菜单高亮补上*/
+	npoThemeMark(document.documentElement.getAttribute('data-npo-theme') || 'default');
+	$(document).on('click', '.npoThemeItem', function(e){
+		e.preventDefault();
+		var key = $(this).attr('data-npo-theme');
+		npoThemeApply(key);
+		/*无痕模式下 localStorage 会抛异常，写不进去就只在本次浏览里生效*/
+		try { window.localStorage.setItem('npoTheme', key); } catch (err) {}
+	});
+});
+
 //组合键捕获初始化
 $(function(){
  

@@ -130,7 +130,7 @@ docker compose exec notepadonline tail -20 /var/www/html/_tmp/error.log
 | `NPO_BROADCAST_TITLE` | `广播DEMO` | 顶部广播条的加粗标题 |
 | `NPO_BROADCAST_TEXT` | `这里是广播DEMO内容` | 顶部广播条的正文 |
 | `NPO_FAVICON` | 空 | 浏览器标签页图标地址，站内相对路径或绝对 URL 均可；留空则不输出图标链接 |
-| `NPO_THEME` | 空 | 配色主题名，取 `content/themes/` 下的文件名去掉 `.css`；内置 `dark`、`sepia`，留空或填不存在的名字都回退默认浅色 |
+| `NPO_THEME` | 空 | 配色主题名，取 `content/themes/` 下的文件名去掉 `.css`；内置 `dark`、`sepia`，留空或填不存在的名字都回退默认浅色。页面上手选的主题存在浏览器里，优先于这个变量 |
 | `NPO_FOOTER_TEXT` | 空 | 页脚的额外文字，与固定的「© 年份 站点名」合成一行居中显示；留空则只有版权 |
 
 想用默认广播就**不写**这两行；想关掉广播，把变量显式设为空值：
@@ -162,6 +162,15 @@ NPO_THEME=dark
 否则**静默回退默认浅色**——填错不会报错，也不会影响页面打开。
 想自己做一套，复制 `content/themes/dark.css` 改颜色即可，文件名（不含 `.css`）就是变量取值。
 主题是页面级样式覆盖，分享页与编辑页共用同一套。
+
+`NPO_THEME` 只是**首次访问的默认值**。页面右上角 `⋮` 菜单里有一组「主题」选项，
+点一下即切换，选择会存进浏览器的 `localStorage`（键名 `npoTheme`），刷新、重开都记得住。
+生效优先级：**浏览器里手选的 > `NPO_THEME` > 默认浅色**。
+
+主题在 `<head>` 里就应用，不会出现先渲染浅色再跳成暗色的闪烁。
+无痕模式下 `localStorage` 不可用，选择只在当前标签页内有效，不会报错。
+想清掉手选、回到 `NPO_THEME` 的默认值，在开发者工具里执行
+`localStorage.removeItem('npoTheme')` 后刷新即可。
 
 `/content/themes/` 会随镜像一起打包（Dockerfile 里 `COPY .`），
 自定义主题放进这个目录后重新构建镜像就能用；用绑定挂载部署时无需重建。

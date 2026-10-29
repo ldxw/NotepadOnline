@@ -65,6 +65,11 @@ a:hover {
 	background-color: #e9dcc0;
 	color: #2b2721;
 }
+/*当前主题项：盖掉 Bootstrap 默认的蓝底，换成米黄自身的高亮色*/
+.dropdown-item.active, .dropdown-item:active {
+	background-color: #e9dcc0;
+	color: #2b2721;
+}
 .dropdown-divider {
 	border-top-color: #ddd0b3;
 }
