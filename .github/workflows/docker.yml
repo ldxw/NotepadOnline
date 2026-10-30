@@ -8,10 +8,10 @@ on:
         required: false
         default: ""
       push_aliyun:
-        description: "是否同时推送到阿里云镜像仓库（默认关闭，勾选后需先配好四个 ALIYUN_* secret）"
+        description: "是否同时推送到阿里云镜像仓库（默认开启；取消勾选则只推 GHCR。缺少 ALIYUN_* secret 时自动跳过并告警）"
         type: boolean
         required: false
-        default: false
+        default: true
   # 推送数字开头的标签（如 3.22）即自动构建，版本号取标签名
   # 标签必须指向带 Dockerfile 的提交，否则会在「检查构建上下文」步骤失败
   push:
@@ -53,9 +53,13 @@ jobs:
         id: meta
         env:
           INPUT_VERSION: ${{ inputs.version }}
-          PUSH_ALIYUN: ${{ inputs.push_aliyun }}
+          # 标签触发时 inputs 为空，用 EVENT_NAME 判断，缺省按开启处理
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_PUSH_ALIYUN: ${{ inputs.push_aliyun }}
           ALIYUN_REGISTRY: ${{ secrets.ALIYUN_REGISTRY }}
           ALIYUN_NAMESPACE: ${{ secrets.ALIYUN_NAMESPACE }}
+          ALIYUN_USERNAME: ${{ secrets.ALIYUN_USERNAME }}
+          ALIYUN_PASSWORD: ${{ secrets.ALIYUN_PASSWORD }}
           # 标签触发时 ref 是 refs/tags/3.22，手动触发时是分支，用 ref_type 区分
           REF_TYPE: ${{ github.ref_type }}
           REF_NAME: ${{ github.ref_name }}
@@ -90,18 +94,32 @@ jobs:
           }
           add_tags "$GHCR_IMAGE"
 
+          # 默认推阿里云：标签触发没有 inputs，按开启处理；手动触发看勾选状态。
+          # 不用 `inputs.x && a || b`——表达式里空值会被 `||` 越过，取消勾选也变 true。
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$INPUT_PUSH_ALIYUN" != "true" ]; then
+            PUSH_ALIYUN="false"
+          else
+            PUSH_ALIYUN="true"
+          fi
+
+          # 缺少任一 ALIYUN_* secret 时降级为只推 GHCR 并告警，不中断整次构建——
+          # GHCR 那份是主要产物，缺 secret 属于配置问题而非构建问题
+          ALIYUN_ENABLED="false"
           if [ "$PUSH_ALIYUN" = "true" ]; then
-            if [ -z "$ALIYUN_REGISTRY" ] || [ -z "$ALIYUN_NAMESPACE" ]; then
-              echo "缺少 ALIYUN_REGISTRY 或 ALIYUN_NAMESPACE secret，无法推送阿里云；可关闭 push_aliyun 后重试" >&2
-              exit 1
+            if [ -z "$ALIYUN_REGISTRY" ] || [ -z "$ALIYUN_NAMESPACE" ] \
+              || [ -z "$ALIYUN_USERNAME" ] || [ -z "$ALIYUN_PASSWORD" ]; then
+              echo "::warning title=跳过阿里云推送::缺少 ALIYUN_REGISTRY / ALIYUN_NAMESPACE / ALIYUN_USERNAME / ALIYUN_PASSWORD 中的至少一个 secret，本次只推 GHCR"
+            else
+              ALIYUN_ENABLED="true"
+              add_tags "${ALIYUN_REGISTRY}/${ALIYUN_NAMESPACE}/notepadonline"
             fi
-            add_tags "${ALIYUN_REGISTRY}/${ALIYUN_NAMESPACE}/notepadonline"
           fi
 
           {
             echo "version=$VERSION"
             echo "date_tag=$DATE_TAG"
             echo "created=$CREATED"
+            echo "aliyun_enabled=$ALIYUN_ENABLED"
             echo "tags<<TAGS_EOF"
             printf '%s\n' "$TAGS"
             echo "TAGS_EOF"
@@ -121,7 +139,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 登录阿里云 ACR
-        if: ${{ inputs.push_aliyun }}
+        if: ${{ steps.meta.outputs.aliyun_enabled == 'true' }}
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           registry: ${{ secrets.ALIYUN_REGISTRY }}
@@ -162,6 +180,7 @@ jobs:
             echo ""
             echo "- 版本：${{ steps.meta.outputs.version }}"
             echo "- 日期标签：\`${{ steps.meta.outputs.date_tag }}\`"
+            echo "- 阿里云 ACR：${{ steps.meta.outputs.aliyun_enabled == 'true' && '已推送' || '未推送' }}"
             echo "- Digest：\`$DIGEST\`"
             echo ""
             echo '```'

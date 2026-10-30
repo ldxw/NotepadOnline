@@ -294,11 +294,10 @@ NPO_FOOTER_TEXT=由 94Joy 提供
 git tag 3.22 && git push ssh://git@github.com/ldxw/NotepadOnline.git 3.22
 ```
 
-同时推阿里云 ACR 由输入项 `push_aliyun` 控制，**默认关闭**，只推 GHCR 时什么都不用配。
-这个输入项只对手动触发有效，标签触发的构建只推 GHCR。
+同时推阿里云 ACR **默认开启**，标签触发和手动触发都会推；手动触发时可取消勾选
+`push_aliyun` 只推 GHCR。
 
-需要推阿里云时，先勾上 `push_aliyun`，并在仓库 Settings → Secrets and variables → Actions
-里配置这四个 secret，缺任何一个都会让构建失败：
+推阿里云需要在仓库 Settings → Secrets and variables → Actions 里配置这四个 secret：
 
 | Secret | 含义 |
 | --- | --- |
@@ -306,6 +305,9 @@ git tag 3.22 && git push ssh://git@github.com/ldxw/NotepadOnline.git 3.22
 | `ALIYUN_NAMESPACE` | 命名空间 |
 | `ALIYUN_USERNAME` | 阿里云账号 |
 | `ALIYUN_PASSWORD` | 仓库密码 |
+
+四个 secret 缺任何一个，构建不会失败，而是跳过阿里云、只推 GHCR，并在运行摘要里
+留一条 `::warning::` 说明。想确认这次推没推阿里云，看运行摘要的「阿里云 ACR」一行。
 
 阿里云 ACR 不认 OCI 1.1 的制品清单，构建时带 provenance 或 SBOM 会推送失败：
 
