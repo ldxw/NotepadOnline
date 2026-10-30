@@ -227,7 +227,7 @@ if ($npoVersion === '') $npoVersion = '3.22';
 
 <script src="<?php echo htmlspecialchars($npoCdnUrl['jquery'], ENT_QUOTES, 'UTF-8'); ?>" crossorigin="anonymous"></script>
 <script src="<?php echo htmlspecialchars($npoCdnUrl['bootstrapJs'], ENT_QUOTES, 'UTF-8'); ?>" crossorigin="anonymous"></script>
-<script crossorigin="anonymous" src="<?php echo htmlspecialchars($npoCdnUrl['fontawesomeJs'], ENT_QUOTES, 'UTF-8'); ?>"></script>
+<script crossorigin="anonymous" async src="<?php echo htmlspecialchars($npoCdnUrl['fontawesomeJs'], ENT_QUOTES, 'UTF-8'); ?>"></script>
 <script type="text/javascript">
 var NPO_CSRF = <?php echo npoJson($csrfToken); ?>;
 $.ajaxPrefilter(function(options){

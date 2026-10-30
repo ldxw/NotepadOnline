@@ -11,6 +11,15 @@
 <?php if ($faviconURL !== '') { ?>
 	<link rel="icon" href="<?php echo htmlspecialchars($faviconURL, ENT_QUOTES, 'UTF-8'); ?>">
 <?php } ?>
+<?php
+/*提前与 CDN 建连，省掉首个外链资源之前的 DNS/TLS 往返；
+**单库被覆盖成站内路径时没有主机名，不输出*/
+$npoCdnOrigin = '';
+if (preg_match('#^(https?://[^/\s]+)#i', $npoCdnUrl['bootstrapCss'], $npoCdnMatch)) $npoCdnOrigin = $npoCdnMatch[1];
+?>
+<?php if ($npoCdnOrigin !== '') { ?>
+	<link rel="preconnect" href="<?php echo htmlspecialchars($npoCdnOrigin, ENT_QUOTES, 'UTF-8'); ?>" crossorigin>
+<?php } ?>
 	<link rel="stylesheet" href="<?php echo htmlspecialchars($npoCdnUrl['bootstrapCss'], ENT_QUOTES, 'UTF-8'); ?>" crossorigin="anonymous">
 	<link rel="stylesheet" href="<?php echo $templateUrl."assets/css/main.css";?>" crossorigin="anonymous">
 	<link crossorigin="anonymous" href="<?php echo htmlspecialchars($npoCdnUrl['fontawesomeCss'], ENT_QUOTES, 'UTF-8'); ?>" rel="stylesheet">
