@@ -269,7 +269,7 @@ class note{
 		/*先拿独占锁做权限判定，再释放锁去删文件。
 		**不能在持锁状态下 unlink：其它终端可能正拿着同一个文件的句柄写，
 		**删掉后它们的写入会落到孤儿 inode 上，静默丢失。
-		**所以照 lib/cleanup.php 的做法先 rename 成 .purge.* 再 unlink：
+		**所以先 rename 成 .purge.* 再 unlink：
 		**rename 是同目录原子操作，已打开的句柄仍指向旧 inode，不会互相打断。*/
 		if (!$this->lockAcquire()) return json_encode(array("status"=>"error"));
 		$json = $this->lockRead();
