@@ -9,7 +9,7 @@
 	<div id="toolNone" class="d-lg-none d-xl-none"><i class="fas fa-exclamation-triangle"></i>&nbsp;工具栏仅在大屏设备上可用</div>
 	<?php if ($es == 'e') { ?>
 	<div id="npoExtraBar" class="d-none d-lg-flex">
-		<span id="npoWordCount">字数 0</span>
+		<span id="npoWordCount">单词: 0, 字符: 0, 行数: 0</span>
 	</div>
 	<?php } ?>
 	<div id="editorDiv"></div>

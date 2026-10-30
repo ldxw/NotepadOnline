@@ -333,6 +333,7 @@ $(function () {
   // 仅编辑页在窄屏隐藏工具栏；分享页必须隐藏，不能被 d-lg-block 覆盖
   $('.w-e-toolbar').attr("class","w-e-toolbar d-none d-lg-block")
   <?php } ?>
+
 })
 
 
@@ -429,12 +430,32 @@ $(function(){
 	}
 
 	/*---------- 字数统计 ----------*/
+	/*editor.txt.text() 不会为段落补换行（两个段落会粘成一串），
+	**所以行数另从 HTML 结构算：块级标签与 <br> 都当作换行，空行不计*/
+	function countLinesFromHtml(){
+		var html = '';
+		try { html = editor.txt.html() || ''; } catch (e) { return 0; }
+		var s = String(html)
+			.replace(/<\/(?:p|div|h[1-6]|li|blockquote|pre|tr)>/gi, '\n')
+			.replace(/<br\s*\/?>/gi, '\n')
+			.replace(/<[^>]*>/g, '')
+			.replace(/&nbsp;/g, ' ');
+		var n = 0;
+		var arr = s.split('\n');
+		for (var i = 0; i < arr.length; i++) {
+			if (arr[i].replace(/[\s\u200b\ufeff]/g, '') !== '') n++;
+		}
+		return n;
+	}
 	function updateWordCount(){
 		var t = '';
 		try { t = editor.txt.text() || ''; } catch (e) { t = textEl() ? textEl().textContent : ''; }
-		/*按非空白字符计数，中文场景比按词更直观*/
-		t = t.replace(/[\s\u200b\ufeff]/g, '');
-		$('#npoWordCount').text('字数 ' + t.length);
+		t = t.replace(/[\u200b\ufeff]/g, '');
+		/*单词：拉丁文按连续字母数字串算一个，中日韩每字算一个；
+		**字符：含空白的全部字符数；行数：只数有内容的行*/
+		var words = t.match(/[A-Za-z0-9_\u00c0-\u024f]+|[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uac00-\ud7af]/g);
+		$('#npoWordCount').text('单词: ' + (words ? words.length : 0) +
+			', 字符: ' + t.length + ', 行数: ' + countLinesFromHtml());
 	}
 	/*正文由 ajax 载入，DOM 就绪时还是空的，只算一次会一直显示 0。
 	**盯住 #editorDiv 的结构变化，笔记加载完成后再补算一次；连续变动合并成一次*/
