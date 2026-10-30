@@ -87,16 +87,13 @@
 		border-top:1px solid #ececec;
 		box-shadow:0 .5rem 1rem rgba(0,0,0,.12);
 	}
-	/*面板里两个下拉各占一行、铺满面板宽度。
+	/*面板里的下拉各占一行、铺满面板宽度。
 	**不能用 inline-block：下面菜单是 width:100% 的静态定位元素，百分比要相对父级算，
 	**而父级宽又要由内容撑开（收缩适应），两者互为条件会形成尺寸环，最终只剩
 	**Bootstrap 的 min-width:10rem 兜底，菜单缩成 160px 一条窄块。
-	**并且「更多」菜单展开后会把行内块父级撑到近 500px 高，同处一行的「主题」按钮
-	**跟着被顶到别处（截图里那个漂在右下角的调色板）。块级 + 满宽两个问题一起消失。
-	**必须用 id 选择器：文件末尾的 #moreTog,#npoThemeTog{display:inline-block} 是
-	**全宽度生效的 id 规则，只写 .dropdown 这类 class 组合特异性不够，会被它盖掉*/
-	.navbarTop .navbar-collapse > #moreTog,
-	.navbarTop .navbar-collapse > #npoThemeTog{
+	**必须用 id 选择器：文件末尾的 #moreTog{display:inline-block} 是全宽度生效的
+	**id 规则，只写 .dropdown 这类 class 组合特异性不够，会被它盖掉*/
+	.navbarTop .navbar-collapse > #moreTog{
 		display:block;
 		width:100%;
 		margin-top:.5rem;
@@ -113,10 +110,9 @@
 		padding:.5rem 0;
 		font-size:1.125rem;
 	}
-	/*两个下拉的触发按钮也放大到整行：按钮和它展开的菜单都是满宽的，只有图标靠左，
+	/*下拉的触发按钮也放大到整行：按钮和它展开的菜单都是满宽的，只有图标靠左，
 	**两者左边缘对齐才像一个整体；顺带把触摸目标从 90px 宽放大到整行*/
-	.navbarTop .navbar-collapse > #moreTog .btn,
-	.navbarTop .navbar-collapse > #npoThemeTog .btn{
+	.navbarTop .navbar-collapse > #moreTog .btn{
 		display:block;
 		width:100%;
 		padding:.5rem .75rem;
@@ -537,26 +533,9 @@ height:100%;
 	color: #000;
 	text-decoration: none;
 }
-#moreTog,
-#npoThemeTog{
+#moreTog{
 	display: inline-block;
 }
-#moreBtn::after,
-#npoThemeBtn::after{
+#moreBtn::after{
 	display: none;
-}
-/*主题菜单：勾号只给当前选中的那一项显示，否则三项前面都挂着勾分不清
-**切换逻辑在 footer.php 里，这里只管显示*/
-.npoThemeItem .npoThemeCheck{
-	display:none;
-	width:1em;
-	margin-right:.25rem;
-}
-.npoThemeItem.active .npoThemeCheck{
-	display:inline-block;
-}
-/*选中项底色三套主题各有一套配色，这里是默认主题的兜底**/
-.npoThemeItem.active{
-	background-color:#e3f2fd;
-	color:#555;
 }

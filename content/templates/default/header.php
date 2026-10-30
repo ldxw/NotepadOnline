@@ -13,25 +13,8 @@
 <?php } ?>
 	<link rel="stylesheet" href="<?php echo htmlspecialchars($npoCdnUrl['bootstrapCss'], ENT_QUOTES, 'UTF-8'); ?>" crossorigin="anonymous">
 	<link rel="stylesheet" href="<?php echo $templateUrl."assets/css/main.css";?>" crossorigin="anonymous">
-	<link rel="stylesheet" id="npoThemeLink" href="<?php echo htmlspecialchars($npoThemeList[$themeName], ENT_QUOTES, 'UTF-8');?>">
-	<script>
-	/*主题要紧跟着应用，否则刷新时会先渲染默认配色再跳成别的，闪一下
-	**优先级：浏览器里用户手动选的（localStorage）> 服务端默认值（NPO_THEME）*/
-	(function () {
-		var links = <?php echo npoJson($npoThemeList); ?>;
-		var pick = <?php echo npoJson($themeName); ?>;
-		try {
-			var saved = window.localStorage.getItem('npoTheme');
-			if (saved && Object.prototype.hasOwnProperty.call(links, saved)) pick = saved;
-		} catch (e) {}
-		if (!Object.prototype.hasOwnProperty.call(links, pick)) pick = 'default';
-		var link = document.getElementById('npoThemeLink');
-		if (link) link.href = links[pick];
-		document.documentElement.setAttribute('data-npo-theme', pick);
-	})();
-	</script>
 	<link crossorigin="anonymous" href="<?php echo htmlspecialchars($npoCdnUrl['fontawesomeCss'], ENT_QUOTES, 'UTF-8'); ?>" rel="stylesheet">
-	
+
 </head>
 <body>
 	<nav class="navbar navbar-expand-lg navbar-light navbarTop">
@@ -112,20 +95,6 @@
 			<a class="dropdown-item" href="#" id = "versionBtn" data-toggle="modal" data-target="#versionWindow">关于</a>
 		  </div>
 		</div>
-		<!-- 主题切换单独一个下拉：分享页会把 #moreTog 整个隐藏（那里有找回文档、导出 Word 等只读页不该有的东西），
-		**主题是两页都要能用的，不能跟它绑在一起-->
-		<div class="dropdown" id="npoThemeTog">
-		  <a class="btn btn-light dropdown-toggle" type="button" id="npoThemeBtn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="切换主题" aria-label="切换主题">
-		    <i class="fas fa-palette"></i><span class="npoBtnLabel">主题</span>
-		  </a>
-		  <div class="dropdown-menu dropdown-menu-right" aria-labelledby="npoThemeBtn">
-			<a class="dropdown-item disabled" href="#">主题</a>
-			<?php foreach ($npoThemeList as $npoThemeKey => $npoThemeHref) { ?>
-			<a class="dropdown-item npoThemeItem<?php if ($npoThemeKey === $themeName) { echo ' active'; } ?>" href="#" data-npo-theme="<?php echo htmlspecialchars($npoThemeKey, ENT_QUOTES, 'UTF-8'); ?>"><i class="fas fa-check npoThemeCheck"></i><?php echo htmlspecialchars(isset($npoThemeLabels[$npoThemeKey]) ? $npoThemeLabels[$npoThemeKey] : $npoThemeKey, ENT_QUOTES, 'UTF-8'); ?></a>
-			<?php } ?>
-		  </div>
-		</div>
-
 		</div>
 		<!-- </div> -->
 	</nav>

@@ -55,36 +55,6 @@ if ($faviconURL !== '' && preg_match('#^([a-z][a-z0-9+.\-]*):#i', $faviconURL, $
     }
 }
 
-/*站点主题（可选）
-**主题是 content/themes/<主题名>.css 这样一份样式覆盖文件，
-**在基础样式之后加载，只改配色不改布局。
-**主题名会拼进 URL，所以只允许字母数字下划线连字符，并且必须存在对应文件，
-**否则静默回退默认样式。Docker 部署用环境变量 NPO_THEME 指定*/
-$themeName = "default";
-$themeCssUrl = "";
-/*可选主题清单：键是主题名，值是样式表地址，供页面上的主题菜单与 JS 使用。
-**default 用一张空样式表占位，避免 href 为空时浏览器把当前页面当样式表再请求一次*/
-$npoThemeList = array("default" => "data:text/css,");
-$npoThemeLabels = array("default" => "默认", "dark" => "暗色", "sepia" => "米黄");
-$npoThemeFiles = glob(__DIR__."/../content/themes/*.css");
-if ($npoThemeFiles !== false) {
-    sort($npoThemeFiles);
-    foreach ($npoThemeFiles as $npoThemeFile) {
-        $npoThemeOne = basename($npoThemeFile, ".css");
-        if (preg_match('/^[A-Za-z0-9_-]{1,32}$/', $npoThemeOne)) {
-            $npoThemeList[$npoThemeOne] = "/content/themes/".$npoThemeOne.".css";
-        }
-    }
-}
-/*NPO_THEME 只是服务端默认值，浏览器里用户手动选过的主题（localStorage）优先*/
-$npoEnvTheme = trim((string)getenv('NPO_THEME'));
-if ($npoEnvTheme !== "" && isset($npoThemeList[$npoEnvTheme])) {
-    if (is_file(__DIR__."/../content/themes/".$npoEnvTheme.".css")) {
-        $themeName = $npoEnvTheme;
-        $themeCssUrl = $npoThemeList[$npoEnvTheme];
-    }
-}
-
 /*页脚文字（可选）
 **与固定的版权（© 年份 站点名）合成一行，整行水平居中。
 **Docker 部署可用环境变量 NPO_FOOTER_TEXT 覆盖，
