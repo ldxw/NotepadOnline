@@ -168,6 +168,8 @@ $(function() {
 
 	var content = editor.txt.html();
 	var $lastEditTime = 0;
+	/*两个轮询定时器的句柄，删除文档时要先停掉，否则会在原路径把文件重建出来*/
+	var npoTimers = [];
 
 	$.ajax({//初次访问
 		url: '/lib/handle.php',
@@ -272,15 +274,15 @@ $(function() {
 			});
 	};
 
-	setInterval(function() {
+	npoTimers.push(setInterval(function() {
         if (content != editor.txt.html()) {
             content = editor.txt.html();
             $("#savingStatus").html('&nbsp;<i class="fas fa-sync-alt savingIcon"></i>&nbsp;正在同步...').attr("class","text-muted");
 			//setTimeout(updateN, 1000 );
 			$lastEditTime = new Date().getTime();
         }
-	}, 500);
-	setInterval(function() {
+	}, 500));
+	npoTimers.push(setInterval(function() {
 		$.ajax({
 			url: '/lib/handle.php',
 			type: "POST",
@@ -302,5 +304,37 @@ $(function() {
 			dataType:"json"
 		});
 
-	}, 1500);
+	}, 1500));
+
+	/*删除整篇文档：成功后必须先停掉两个定时器再跳转，
+	**否则 1.5 秒内的 getLastTime 轮询会把刚删掉的文件按新笔记重建出来*/
+	$("#npoDeleteBtn").on('click', function() {
+		var $btn = $(this);
+		if ($btn.prop('disabled')) return;
+		$btn.prop('disabled', true);
+		$.ajax({
+			url: '/lib/handle.php',
+			type: "POST",
+			data:{"es":"<?php echo $es?>","name":<?php echo npoJson($name); ?>,"do":"noteDelete"},
+			success:function(data){
+				if(data.status=='OK'){
+					for (var i = 0; i < npoTimers.length; i++) clearInterval(npoTimers[i]);
+					npoTimers = [];
+					window.location.href = '/';
+				}else if(data.status=='permissionDenied'){
+					$btn.prop('disabled', false);
+					$("#npoDeleteModal").modal('hide');
+					document.getElementById("keyJudgeBtn").click();
+				}else{
+					$btn.prop('disabled', false);
+					$("#npoDeleteTip").text('删除失败，失败原因：' + data.status).attr("class","small text-danger");
+				}
+			},
+			error:function(){
+				$btn.prop('disabled', false);
+				$("#npoDeleteTip").text('删除失败，失败原因：连接失败，请检查网络连接').attr("class","small text-danger");
+			},
+			dataType:"json"
+		});
+	});
 });

@@ -196,6 +196,28 @@ if ($npoVersion === '') $npoVersion = '3.22';
   </div>
 </div>
 
+<div class="modal fade" id="npoDeleteModal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="npoDeleteModalTitle" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="npoDeleteModalTitle">删除文档</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="text-danger"><b>删除后无法恢复</b>，正文内容与密码设置会一并消失，已发出的分享链接也将失效。</p>
+        <p class="mb-0">确认要删除文档「<?php echo htmlspecialchars($name, ENT_QUOTES, 'UTF-8');?>」吗？</p>
+        <div id="npoDeleteTip" class="small mt-2"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-danger" id="npoDeleteBtn">确认删除</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="toastTop">
 	<div id="toastTopTitle">
 		<span id="toastTopTitleText"></span>

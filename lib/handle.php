@@ -59,6 +59,7 @@ switch($do){
 	case 'pwChange':echo $noteE->pwChange($opw,$npw);break;
 	case 'shareOpen':if($es=='s'){echo json_encode(array("status"=>"paraError8"));die();}echo $noteE->shareOperate("OPEN");break;
 	case 'shareClose':if($es=='s'){echo json_encode(array("status"=>"paraError9"));die();}echo $noteE->shareOperate("CLOSE");break;
+	case 'noteDelete':if($es=='s'){echo json_encode(array("status"=>"paraError1"));die();}echo $noteE->noteDelete();break;
 	case 'isExist':	$perm = $noteE->readPermission();
 					if ($perm === -1) { echo json_encode(array("status"=>"shareClosed")); break; }
 					if ($perm !== 1) { echo json_encode(array("status"=>"permissionDenied")); break; }

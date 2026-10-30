@@ -262,6 +262,34 @@ class note{
 		$es = $this->mode ? "s" : "e";
 		$_SESSION[$es.dencrypt(1,$this->name)]=0;
 	}
+	function noteDelete(){
+		/*整篇删除：文件不存在按幂等成功处理（已经被清掉或从未创建过）*/
+		if($this->pathData === null) return json_encode(array("status"=>"paraError6"));
+		if(!$this->isExist()) return json_encode(array("status"=>"OK","result"=>"notExist"));
+		/*先拿独占锁做权限判定，再释放锁去删文件。
+		**不能在持锁状态下 unlink：其它终端可能正拿着同一个文件的句柄写，
+		**删掉后它们的写入会落到孤儿 inode 上，静默丢失。
+		**所以照 lib/cleanup.php 的做法先 rename 成 .purge.* 再 unlink：
+		**rename 是同目录原子操作，已打开的句柄仍指向旧 inode，不会互相打断。*/
+		if (!$this->lockAcquire()) return json_encode(array("status"=>"error"));
+		$json = $this->lockRead();
+		if ($json === null) { $this->lockRelease(); return json_encode(array("status"=>"error")); }
+		if ($this->permissionFromJson($json) !== 1) {
+			$this->lockRelease();
+			return json_encode(array("status"=>"permissionDenied"));
+		}
+		$path = $this->pathData;
+		$this->lockRelease();
+		$purge = $path.'.purge.'.uniqid('', true);
+		if (!@rename($path, $purge)) return json_encode(array("status"=>"error"));
+		if (!@unlink($purge)) {
+			//unlink 失败就把文件挪回去，避免笔记既没删成又对用户消失
+			@rename($purge, $path);
+			return json_encode(array("status"=>"error"));
+		}
+		$this->logout();
+		return json_encode(array("status"=>"OK"));
+	}
 	function getLastTime(){
 		if($this->pathData === null) return '00000000';
 		if(!$this->isExist()) return '00000000';

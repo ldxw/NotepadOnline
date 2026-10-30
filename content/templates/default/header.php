@@ -92,6 +92,8 @@
 			<a class="dropdown-item disabled" href="#">文档信息（开发中）</a>
 			<a class="dropdown-item disabled" href="#">版权声明（开发中）</a>
 			<div class="dropdown-divider"></div>
+			<a class="dropdown-item text-danger" href="#" id="npoDeleteEntry" data-toggle="modal" data-target="#npoDeleteModal">删除此文档</a>
+			<div class="dropdown-divider"></div>
 			<a class="dropdown-item" href="#" id = "versionBtn" data-toggle="modal" data-target="#versionWindow">关于</a>
 		  </div>
 		</div>
