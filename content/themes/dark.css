@@ -286,3 +286,12 @@ body .w-e-text-container .w-e-panel-container {
 .docDiv .w-e-up-img-container .w-e-up-btn:hover {
 	color: #dedede;
 }
+/*窄屏折叠面板里的二级下拉是就地展开的，main.css 把它们写成了浅灰底（规则是
+**.navbarTop .navbar-collapse .dropdown-menu，特异性比上面那条 .dropdown-menu 高），
+**浅灰浮在暗色面板上很扎眼。这里用同样的特异性覆盖一次；主题样式表在 main.css
+**之后加载，特异性相同就能赢*/
+@media (max-width:991.98px){
+	.navbarTop .navbar-collapse .dropdown-menu{
+		background-color: #232323;
+	}
+}
