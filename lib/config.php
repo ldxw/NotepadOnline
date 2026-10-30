@@ -63,6 +63,28 @@ $footerText = "";
 $npoEnvFooterText = getenv('NPO_FOOTER_TEXT');
 if ($npoEnvFooterText !== false) $footerText = trim($npoEnvFooterText);
 
+/*空笔记自动清理（可选）
+**访客打开首页会被随机分配一个笔记名（lib/surface.php），看一眼就走会在 _tmp
+**里留下一个空笔记。这里按「多旧」把内容为空、且超过该天数的笔记删掉。
+**NPO_EMPTY_TTL_DAYS：天数，0 或不设即关闭（默认关闭）。
+**NPO_CLEANUP_INTERVAL_HOURS：两次扫描的最小间隔（小时），默认 1，最小 1。
+**清理在请求路径上惰性触发（见 lib/general.func.php），纯 PHP 部署同样生效。
+**已开分享、设过密码的空笔记，以及 JSON 损坏的文件一律保留*/
+$emptyTtlDays = 0;
+$npoEnvEmptyTtl = getenv('NPO_EMPTY_TTL_DAYS');
+if ($npoEnvEmptyTtl !== false && trim($npoEnvEmptyTtl) !== "") {
+    $npoEnvEmptyTtl = trim($npoEnvEmptyTtl);
+    if (ctype_digit($npoEnvEmptyTtl)) $emptyTtlDays = (int)$npoEnvEmptyTtl;
+}
+$cleanupIntervalHours = 1;
+$npoEnvCleanupInterval = getenv('NPO_CLEANUP_INTERVAL_HOURS');
+if ($npoEnvCleanupInterval !== false && trim($npoEnvCleanupInterval) !== "") {
+    $npoEnvCleanupInterval = trim($npoEnvCleanupInterval);
+    if (ctype_digit($npoEnvCleanupInterval) && (int)$npoEnvCleanupInterval >= 1) {
+        $cleanupIntervalHours = (int)$npoEnvCleanupInterval;
+    }
+}
+
 /*外部 CDN 资源（可选）
 **页面的 jquery / bootstrap / font-awesome / wangEditor / clipboard / FileSaver
 **默认从 cdn.staticfile.net 加载。想换自建镜像或本地文件时有两种方式：

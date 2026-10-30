@@ -305,4 +305,23 @@ function npoShareParse($token){
 	if (!hash_equals($expect, $m[2])) return false;
 	return npoValidName($raw) ? $raw : false;
 }
+
+/*空笔记自动清理：惰性触发
+**放在 general.func.php 是因为它是 index.php / share.php / handle.php 三个入口
+**共同的 include 点，纯 PHP 部署也能覆盖到。阈值 0 时 lib/cleanup.php 会
+**立即返回，开销只有一次函数调用；节流标记保证真正 scandir 最多每 N 小时一次*/
+$npoCleanupTtl = isset($emptyTtlDays) ? (int)$emptyTtlDays : 0;
+if ($npoCleanupTtl > 0 && isset($tmpFolder) && is_string($tmpFolder) && $tmpFolder !== '') {
+	$npoCleanupDir = @realpath(__DIR__.'/../'.$tmpFolder);
+	if ($npoCleanupDir !== false) {
+		include_once __DIR__.'/cleanup.php';
+		if (function_exists('npoCleanupEmptyNotes')) {
+			@npoCleanupEmptyNotes(
+				$npoCleanupDir,
+				$npoCleanupTtl,
+				isset($cleanupIntervalHours) ? (int)$cleanupIntervalHours : 1
+			);
+		}
+	}
+}
 ?>
