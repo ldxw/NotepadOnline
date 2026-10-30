@@ -334,6 +334,26 @@ $(function () {
   $('.w-e-toolbar').attr("class","w-e-toolbar d-none d-lg-block")
   <?php } ?>
 
+  /*窄屏折叠面板：点面板外的空白处收起面板。
+  **面板是绝对定位浮层，下方编辑器仍然暴露在外，那一下点击会直接落进正文，
+  **移动端就弹出软键盘了。用一个遮罩盖住导航栏以下的区域，点击只关面板、
+  **不传给编辑器；遮罩在导航栏(1030)之下，面板自己仍可正常点*/
+  ;(function(){
+    var mq = window.matchMedia('(max-width: 991.98px)');
+    var $panel = $('#navbarSupportedContent');
+    if (!$panel.length) return;
+    var $mask = $('<div class="npoNavMask" aria-hidden="true"></div>').appendTo('body').hide();
+    $panel.on('show.bs.collapse', function(){ if (mq.matches) $mask.show(); });
+    $panel.on('hide.bs.collapse hidden.bs.collapse', function(){ $mask.hide(); });
+    $mask.on('click', function(e){
+      e.preventDefault();
+      $panel.collapse('hide');
+    });
+    /*窗口被拉宽后折叠态不再生效，遮罩要跟着撤掉，否则会盖住整页*/
+    function onMq(){ if (!mq.matches) $mask.hide(); }
+    if (mq.addEventListener) mq.addEventListener('change', onMq);
+    else if (mq.addListener) mq.addListener(onMq);
+  })();
 })
 
 
